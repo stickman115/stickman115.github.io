@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUPREME STICKMAN: ARENA DUEL</title>
+    <title>SUPREME DUELIST STICKMAN — ONLINE ARENA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -31,7 +31,6 @@
             width: 100%;
             height: 100%;
         }
-        /* Custom Scrollbar for Weapon Arsenal Modal */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -46,64 +45,64 @@
 
         /* Jumpscare Medal Animations */
         @keyframes jumpscareSlam {
-            0% { transform: scale(4.5) rotate(-18deg); opacity: 0; filter: brightness(3); }
-            45% { transform: scale(0.88) rotate(4deg); opacity: 1; filter: brightness(1.4); }
-            65% { transform: scale(1.08) rotate(-2deg); }
-            80% { transform: scale(0.97) rotate(1deg); }
+            0% { transform: scale(4.8) rotate(-20deg); opacity: 0; filter: brightness(3.5); }
+            42% { transform: scale(0.86) rotate(5deg); opacity: 1; filter: brightness(1.5); }
+            64% { transform: scale(1.09) rotate(-3deg); }
+            82% { transform: scale(0.96) rotate(1.5deg); }
             100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
         }
         @keyframes screenFlash {
-            0% { background-color: rgba(255, 255, 255, 0.95); }
-            30% { background-color: rgba(239, 68, 68, 0.6); }
-            100% { background-color: rgba(9, 13, 22, 0.88); }
+            0% { background-color: rgba(255, 255, 255, 0.96); }
+            25% { background-color: rgba(239, 68, 68, 0.65); }
+            100% { background-color: rgba(9, 13, 22, 0.9); }
         }
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.6), 0 0 60px rgba(239, 68, 68, 0.4); }
-            50% { box-shadow: 0 0 45px rgba(245, 158, 11, 0.95), 0 0 90px rgba(239, 68, 68, 0.8); }
+            0%, 100% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.65), 0 0 65px rgba(239, 68, 68, 0.45); }
+            50% { box-shadow: 0 0 50px rgba(245, 158, 11, 1), 0 0 100px rgba(239, 68, 68, 0.85); }
         }
         @keyframes floatSlow {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-7px); }
         }
         .jumpscare-bg {
-            animation: screenFlash 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: screenFlash 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .jumpscare-medal {
-            animation: jumpscareSlam 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards, pulseGlow 2s infinite 0.7s;
+            animation: jumpscareSlam 0.68s cubic-bezier(0.22, 1, 0.36, 1) forwards, pulseGlow 2s infinite 0.75s;
         }
         .float-anim {
             animation: floatSlow 3s ease-in-out infinite;
         }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.82);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(148, 163, 184, 0.22);
         }
         .btn-arcade {
             transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
         }
         .btn-arcade:active {
             transform: translateY(3px);
-            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body class="relative w-full h-full select-none">
 
-    <!-- Background Interactive Physics Canvas -->
+    <!-- Main Fullscreen Physics Arena Canvas -->
     <canvas id="gameCanvas" class="fixed inset-0 w-full h-full z-0"></canvas>
 
-    <!-- Custom Toast / Notification Banner (No alert() used) -->
+    <!-- Custom Toast Banner -->
     <div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-y-4">
-        <div id="toastContent" class="px-5 py-2.5 rounded-xl bg-slate-900/95 border border-amber-500/60 text-amber-300 font-semibold text-sm shadow-2xl flex items-center gap-2">
+        <div class="px-5 py-2.5 rounded-xl bg-slate-900/95 border border-amber-500/70 text-amber-300 font-semibold text-sm shadow-2xl flex items-center gap-2">
             <span id="toastIcon">⚡</span>
             <span id="toastText">Bildiriş</span>
         </div>
     </div>
 
-    <!-- Top Global Controls (Audio & Arsenal Preview) -->
+    <!-- Top Global Bar (Arsenal, Touchpad Toggle & Sound) -->
     <div id="topGlobalBar" class="fixed top-3 right-3 z-40 flex items-center gap-2">
         <button id="btnOpenArsenal" class="btn-arcade px-3 py-2 rounded-xl glass-panel hover:bg-slate-800 text-xs sm:text-sm font-gaming font-bold text-amber-400 flex items-center gap-1.5 cursor-pointer">
             <span>⚔️</span>
@@ -118,14 +117,13 @@
         </button>
     </div>
 
-    <!-- ==================== SCREEN 1: MAIN MENU (ROOM CREATE / JOIN) ==================== -->
+    <!-- ==================== SCREEN 1: MAIN MENU (ONLINE ROOM CREATE / JOIN) ==================== -->
     <div id="screenMenu" class="fixed inset-0 z-20 flex flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-950/75 via-slate-900/65 to-slate-950/85">
         <div class="max-w-md w-full glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700/60 text-center relative overflow-hidden">
-            <!-- Decorative Glow -->
             <div class="absolute -top-20 -left-20 w-44 h-44 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-20 -right-20 w-44 h-44 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-            <!-- Stickman Emblem SVG -->
+            <!-- Stickman Duel Emblem -->
             <div class="mx-auto w-20 h-20 mb-3 rounded-2xl bg-slate-900/90 border-2 border-amber-500/50 flex items-center justify-center shadow-lg float-anim">
                 <svg viewBox="0 0 100 100" class="w-14 h-14">
                     <circle cx="32" cy="30" r="9" fill="#22d3ee"/>
@@ -138,49 +136,56 @@
             </div>
 
             <h1 class="font-gaming text-3xl sm:text-4xl font-extrabold tracking-wider bg-gradient-to-r from-amber-400 via-yellow-200 to-cyan-400 bg-clip-text text-transparent">
-                SUPREME STICKMAN
+                SUPREME DUELIST
             </h1>
-            <p class="font-gaming text-xs sm:text-sm tracking-widest text-slate-400 uppercase mt-1 mb-6">
-                ARENA DUEL • MAKSİMUM 5 OYUNÇU
+            <p class="font-gaming text-xs sm:text-sm tracking-widest text-slate-400 uppercase mt-1 mb-2">
+                STICKMAN ONLINE • MAKSİMUM 5 OYUNÇU
             </p>
+
+            <!-- Live Server Connection Indicator -->
+            <div class="mb-5 flex items-center justify-center">
+                <span id="serverStatusPill" class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    ⏳ Onlayn serverə qoşulur...
+                </span>
+            </div>
 
             <!-- Create Room Button -->
             <button id="btnCreateRoom" class="btn-arcade w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-gaming font-extrabold text-lg tracking-wide flex items-center justify-center gap-2 mb-4 cursor-pointer">
                 <span>👑</span>
-                <span>YENİ OTAQ YARAT</span>
+                <span>OTAQ YARAT</span>
             </button>
 
             <div class="relative flex py-2 items-center mb-4">
                 <div class="flex-grow border-t border-slate-700"></div>
-                <span class="flex-shrink mx-3 text-xs text-slate-400 uppercase font-semibold">Və ya kod ilə qoşul</span>
+                <span class="flex-shrink mx-3 text-xs text-slate-400 uppercase font-semibold">Dostunun otağına qoşul</span>
                 <div class="flex-grow border-t border-slate-700"></div>
             </div>
 
             <!-- Join Room Form -->
             <div class="flex gap-2">
-                <input id="inputRoomCode" type="text" maxlength="6" placeholder="OTAQ KODU (məs: 48291)" class="w-full px-4 py-3 rounded-2xl bg-slate-900/90 border border-slate-700 focus:border-cyan-400 focus:outline-none text-center font-gaming text-lg tracking-widest uppercase text-white placeholder-slate-500">
-                <button id="btnJoinRoom" class="btn-arcade px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-gaming font-extrabold text-base cursor-pointer shrink-0">
-                    DAXİL OL
+                <input id="inputRoomCode" type="text" inputmode="numeric" maxlength="6" placeholder="KOD (məs: 48291)" class="w-full px-4 py-3 rounded-2xl bg-slate-900/90 border border-slate-700 focus:border-cyan-400 focus:outline-none text-center font-gaming text-lg tracking-widest uppercase text-white placeholder-slate-500">
+                <button id="btnJoinRoom" class="btn-arcade px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-gaming font-extrabold text-sm sm:text-base cursor-pointer shrink-0">
+                    OTAĞA QOŞUL
                 </button>
             </div>
 
-            <!-- Controls Quick Info -->
+            <!-- Controls Info -->
             <div class="mt-6 pt-4 border-t border-slate-800/90 grid grid-cols-2 gap-2 text-left text-xs text-slate-400">
                 <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
                     <div class="text-amber-400 font-bold mb-0.5">💻 Kompüter (PC)</div>
-                    <div>WASD / Oxlar + Touchpad</div>
-                    <div class="text-slate-500">Space / E: Xüsusi Güc</div>
+                    <div>WASD + Siçan / Touchpad</div>
+                    <div class="text-slate-500">Sol Klik / E / Space: Güc</div>
                 </div>
                 <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
                     <div class="text-cyan-400 font-bold mb-0.5">📱 Telefon / Touch</div>
-                    <div>360° Virtual Joystik</div>
+                    <div>360° Elastik Joystik</div>
                     <div class="text-slate-500">⚡ Düyməsi: Xüsusi Güc</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ==================== SCREEN 2: ROOM LOBBY (POST-JOIN NAME, SKIN & ARENA) ==================== -->
+    <!-- ==================== SCREEN 2: ONLINE ROOM LOBBY ==================== -->
     <div id="screenLobby" class="hidden fixed inset-0 z-20 flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 overflow-y-auto">
         <div class="max-w-4xl w-full glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-700/70 my-auto">
             
@@ -191,11 +196,11 @@
                         ← ÇIXIŞ
                     </button>
                     <div>
-                        <div class="text-xs text-slate-400 font-semibold">SERVER OTAĞI (MAKS. 5 NƏFƏR)</div>
+                        <div class="text-xs text-slate-400 font-semibold">ONLAYN OTAQ KODU (DOSTUNA GÖNDƏR)</div>
                         <div class="flex items-center gap-2">
                             <span class="font-gaming text-2xl sm:text-3xl font-extrabold text-amber-400 tracking-widest" id="lobbyRoomCodeDisplay">-----</span>
                             <button id="btnCopyRoomCode" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-cyan-300 font-semibold border border-slate-700 cursor-pointer">
-                                Kopyala
+                                📋 Kopyala
                             </button>
                         </div>
                     </div>
@@ -203,7 +208,7 @@
 
                 <div class="flex items-center gap-2">
                     <span id="connectionStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        ● Onlayn Otaq Aktivdir
+                        ● Real-Time Server Aktivdir
                     </span>
                 </div>
             </div>
@@ -215,10 +220,10 @@
                 <div class="lg:col-span-6 bg-slate-900/75 rounded-2xl p-4 border border-slate-800">
                     <h2 class="font-gaming text-base font-bold text-cyan-400 mb-3 flex items-center gap-2">
                         <span>🎭</span>
-                        <span>XARAKTERİNİ FƏRDİLƏŞDİR</span>
+                        <span>ADINI VƏ SKİNİNİ SEÇ</span>
                     </h2>
 
-                    <!-- Nickname Input (Hidden during fight, revealed at victory) -->
+                    <!-- Nickname Input -->
                     <div class="mb-4">
                         <label class="block text-xs text-slate-400 font-semibold mb-1">
                             Oyunçu Adın <span class="text-amber-400">(Döyüşdə gizli qalır, 1-ci yer olanda açılır!)</span>
@@ -226,27 +231,25 @@
                         <div class="flex gap-2">
                             <input id="inputPlayerName" type="text" maxlength="16" placeholder="Adını yaz..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-sm font-bold text-white">
                             <button id="btnSaveProfile" class="btn-arcade px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-gaming font-bold text-xs cursor-pointer shrink-0">
-                                TƏSDİQLƏ
+                                YADDA SAXLA
                             </button>
                         </div>
                     </div>
 
-                    <!-- Preview Canvas + Skin & Color Selectors -->
+                    <!-- Live Elastic Stickman Preview + Skin & Color -->
                     <div class="grid grid-cols-12 gap-3 items-center">
-                        <!-- Live Stickman Preview -->
                         <div class="col-span-5 bg-slate-950/90 rounded-2xl border border-slate-800 p-2 flex flex-col items-center justify-center">
-                            <canvas id="previewCanvas" width="120" height="140" class="w-full h-32"></canvas>
+                            <canvas id="previewCanvas" width="120" height="145" class="w-full h-36"></canvas>
                             <span id="previewSkinLabel" class="text-[11px] font-gaming text-amber-300 mt-1">Klassik</span>
                         </div>
 
-                        <!-- Colors & Skins -->
                         <div class="col-span-7 space-y-3">
                             <div>
-                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Rəng Seçimi (Döyüşdə fərqlənmək üçün):</div>
-                                <div id="colorPalette" class="grid grid-cols-5 gap-1.5"></div>
+                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Rəng Seç (12 Rəng):</div>
+                                <div id="colorPalette" class="grid grid-cols-6 gap-1.5"></div>
                             </div>
                             <div>
-                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Skin Seçimi:</div>
+                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Skin Seç (15 Skin):</div>
                                 <div id="skinGrid" class="grid grid-cols-3 gap-1.5 max-h-28 overflow-y-auto pr-1"></div>
                             </div>
                         </div>
@@ -266,15 +269,14 @@
                             </button>
                         </div>
 
-                        <!-- Players List Container -->
-                        <div id="lobbyPlayersList" class="space-y-2 mb-4"></div>
+                        <div id="lobbyPlayersList" class="space-y-2 mb-4 max-h-52 overflow-y-auto pr-1"></div>
                     </div>
 
                     <!-- Admin Map Selector & Start Game -->
                     <div id="adminControlsBox" class="pt-3 border-t border-slate-800">
                         <div class="mb-3">
                             <label class="block text-xs text-slate-400 font-semibold mb-1.5">Arena Xəritəsi (Admin Seçir):</label>
-                            <div id="mapSelectorGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5"></div>
+                            <div id="mapSelectorGrid" class="grid grid-cols-2 gap-1.5"></div>
                         </div>
 
                         <button id="btnStartGame" class="btn-arcade w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-gaming font-extrabold text-lg tracking-wider shadow-lg cursor-pointer flex items-center justify-center gap-2">
@@ -297,7 +299,7 @@
             <div class="glass-panel px-3.5 py-2 rounded-2xl flex items-center gap-3 pointer-events-auto">
                 <div>
                     <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">ARENA</div>
-                    <div id="hudMapName" class="font-gaming text-sm font-bold text-amber-400">Yük Maşınları</div>
+                    <div id="hudMapName" class="font-gaming text-sm font-bold text-amber-400">Kamaz Yolu</div>
                 </div>
                 <div class="h-6 w-px bg-slate-700"></div>
                 <div>
@@ -310,21 +312,19 @@
             <div id="hudAliveDots" class="glass-panel px-3 py-2 rounded-2xl flex items-center gap-2 mr-24 sm:mr-36"></div>
         </div>
 
-        <!-- Bottom Controls: Virtual Analog Touchpad (Left) + Special Ability Button (Right) -->
+        <!-- Bottom Controls: Virtual Analog Touchpad (Left) + Special Ability & Jump (Right) -->
         <div id="touchControlsLayer" class="fixed inset-x-0 bottom-0 h-56 pointer-events-none flex items-end justify-between p-4 sm:p-7">
-            <!-- Left Virtual Joystick / Touchpad Zone -->
-            <div id="joystickZone" class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-slate-900/40 border-2 border-white/15 backdrop-blur-sm pointer-events-auto flex items-center justify-center">
-                <div class="text-[10px] font-gaming text-white/30 uppercase tracking-widest pointer-events-none">TOUCHPAD</div>
-                <div id="joystickKnob" class="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-cyan-400/80 to-blue-600/80 border-2 border-white/60 shadow-lg pointer-events-none transition-transform duration-75"></div>
+            <div id="joystickZone" class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-slate-900/45 border-2 border-white/20 backdrop-blur-sm pointer-events-auto flex items-center justify-center">
+                <div class="text-[10px] font-gaming text-white/35 uppercase tracking-widest pointer-events-none">360° JOYSTİK</div>
+                <div id="joystickKnob" class="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-cyan-400/85 to-blue-600/85 border-2 border-white/70 shadow-lg pointer-events-none"></div>
             </div>
 
-            <!-- Right Special Ability & Jump Buttons -->
             <div class="flex flex-col items-end gap-3 pointer-events-auto">
-                <button id="btnTouchJump" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-900/60 active:bg-cyan-500/50 border-2 border-cyan-400/50 backdrop-blur-sm flex flex-col items-center justify-center text-cyan-300 font-gaming font-bold shadow-xl">
+                <button id="btnTouchJump" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-900/65 active:bg-cyan-500/50 border-2 border-cyan-400/55 backdrop-blur-sm flex flex-col items-center justify-center text-cyan-300 font-gaming font-bold shadow-xl">
                     <span class="text-xl">⬆️</span>
                     <span class="text-[10px]">TULLAN</span>
                 </button>
-                <button id="btnTouchSpecial" class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-amber-500/80 to-red-600/80 active:scale-95 border-2 border-amber-300 shadow-2xl flex flex-col items-center justify-center text-white font-gaming font-extrabold overflow-hidden">
+                <button id="btnTouchSpecial" class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-amber-500/85 to-red-600/85 active:scale-95 border-2 border-amber-300 shadow-2xl flex flex-col items-center justify-center text-white font-gaming font-extrabold overflow-hidden">
                     <div id="specialCooldownOverlay" class="absolute inset-0 bg-slate-950/75 origin-bottom transition-transform duration-100" style="transform: scaleY(0);"></div>
                     <span class="relative z-10 text-2xl">⚡</span>
                     <span class="relative z-10 text-[11px] tracking-wider">GÜC</span>
@@ -336,46 +336,38 @@
     <!-- ==================== SCREEN 4: 1ST PLACE JUMPSCARE MEDAL & WINNER REVEAL ==================== -->
     <div id="screenVictory" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center p-4 jumpscare-bg">
         <div id="jumpscareCard" class="jumpscare-medal max-w-md w-full bg-gradient-to-b from-slate-900 via-slate-950 to-black border-4 border-amber-400 rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden">
-            
-            <!-- Radial Burst Rays -->
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.28)_0%,transparent_70%)] pointer-events-none"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.3)_0%,transparent_70%)] pointer-events-none"></div>
 
             <div class="inline-block px-4 py-1 rounded-full bg-red-600 text-white font-gaming font-extrabold text-xs tracking-widest uppercase mb-2 animate-bounce">
-                👑 1-Cİ YER • MÜTLƏQ ÇEMPİON 👑
+                👑 1-Cİ YER • SUPREME ÇEMPİON 👑
             </div>
 
-            <!-- Jumpscare Skull/Crown Champion Medal SVG -->
+            <!-- Jumpscare Champion Medal SVG -->
             <div class="mx-auto w-32 h-32 sm:w-36 sm:h-36 my-2 relative flex items-center justify-center">
-                <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-[0_0_25px_rgba(250,204,21,0.9)]">
-                    <!-- Ribbon -->
+                <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-[0_0_28px_rgba(250,204,21,0.95)]">
                     <polygon points="45,10 65,10 80,55 60,55" fill="#dc2626"/>
                     <polygon points="115,10 95,10 80,55 100,55" fill="#b91c1c"/>
-                    <!-- Outer Medal Starburst -->
                     <circle cx="80" cy="92" r="54" fill="#f59e0b" stroke="#fef08a" stroke-width="5"/>
                     <circle cx="80" cy="92" r="44" fill="#78350f" stroke="#fbbf24" stroke-width="3"/>
-                    <!-- Jumpscare Fierce Champion Emblem -->
                     <path d="M56 76 L68 84 L56 88 Z" fill="#fef08a"/>
                     <path d="M104 76 L92 84 L104 88 Z" fill="#fef08a"/>
                     <circle cx="63" cy="83" r="3.5" fill="#ef4444"/>
                     <circle cx="97" cy="83" r="3.5" fill="#ef4444"/>
-                    <!-- Crown inside medal -->
                     <polygon points="56,66 64,52 80,62 96,52 104,66" fill="#fde047"/>
-                    <!-- Fierce Grin -->
                     <path d="M60 104 Q80 122 100 104 L95 114 L88 108 L80 116 L72 108 L65 114 Z" fill="#fef08a"/>
                     <text x="80" y="131" text-anchor="middle" fill="#fde047" font-family="Chakra Petch, sans-serif" font-weight="900" font-size="14">#1</text>
                 </svg>
             </div>
 
-            <div class="text-xs uppercase tracking-widest text-amber-300/80 font-bold mt-2">
+            <div class="text-xs uppercase tracking-widest text-amber-300/85 font-bold mt-2">
                 DÖYÜŞ BOYU GİZLİ QALAN QALİBİN ADI:
             </div>
             
             <!-- REVEALED WINNER NAME -->
-            <h2 id="winnerNameReveal" class="font-gaming text-3xl sm:text-5xl font-black text-white tracking-wide mt-1 mb-3 drop-shadow-[0_2px_12px_rgba(245,158,11,0.8)]">
+            <h2 id="winnerNameReveal" class="font-gaming text-3xl sm:text-5xl font-black text-white tracking-wide mt-1 mb-3 drop-shadow-[0_2px_14px_rgba(245,158,11,0.9)]">
                 OYUNÇU
             </h2>
 
-            <!-- Winner Details Badge -->
             <div class="flex items-center justify-center gap-2 flex-wrap mb-6">
                 <span id="winnerSkinBadge" class="px-3 py-1 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold text-cyan-300">
                     Skin: Ninja
@@ -407,14 +399,14 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & Full Game Engine -->
+    <!-- ==================== SCRIPT: FIREBASE MULTIPLAYER & ELASTIC RAGDOLL ENGINE ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ============================================================================
-        // 1. AUDIO SYNTHESIZER (WEB AUDIO API - NO EXTERNAL SOUND URLs)
+        // 1. PROCEDURAL WEB AUDIO ENGINE
         // ============================================================================
         class SoundEngine {
             constructor() {
@@ -430,7 +422,7 @@
                     this.ctx.resume();
                 }
             }
-            playTone(freq, type = 'sine', duration = 0.15, vol = 0.2, slideTo = null) {
+            playTone(freq, type = 'sine', duration = 0.15, vol = 0.18, slideTo = null) {
                 if (this.muted) return;
                 this.init();
                 if (!this.ctx) return;
@@ -449,112 +441,109 @@
                 osc.stop(this.ctx.currentTime + duration);
             }
             playHit(heavy = false) {
-                this.playTone(heavy ? 140 : 260, 'sawtooth', heavy ? 0.22 : 0.12, heavy ? 0.3 : 0.18, 45);
+                this.playTone(heavy ? 135 : 250, 'sawtooth', heavy ? 0.22 : 0.12, heavy ? 0.26 : 0.15, 45);
+            }
+            playBoing() {
+                this.playTone(180, 'sine', 0.25, 0.2, 460);
             }
             playShoot(kind = 'laser') {
                 if (kind === 'guitar') {
                     const notes = [329.63, 392.00, 440.00, 523.25, 659.25];
                     const n = notes[Math.floor(Math.random() * notes.length)];
-                    this.playTone(n, 'triangle', 0.35, 0.25, n * 1.02);
+                    this.playTone(n, 'triangle', 0.35, 0.22, n * 1.02);
                 } else if (kind === 'boom') {
-                    this.playTone(110, 'square', 0.35, 0.3, 30);
+                    this.playTone(105, 'square', 0.35, 0.25, 28);
                 } else {
-                    this.playTone(720, 'sawtooth', 0.14, 0.16, 180);
+                    this.playTone(680, 'sawtooth', 0.14, 0.14, 180);
                 }
             }
             playKO() {
-                this.playTone(300, 'sawtooth', 0.45, 0.3, 55);
+                this.playTone(280, 'sawtooth', 0.5, 0.28, 50);
             }
             playJumpscareVictory() {
                 if (this.muted) return;
                 this.init();
                 if (!this.ctx) return;
-                // Dramatic Jumpscare Slam + Champion Fanfare
-                this.playTone(95, 'sawtooth', 0.65, 0.45, 32);
-                this.playTone(190, 'square', 0.55, 0.35, 55);
+                this.playTone(90, 'sawtooth', 0.7, 0.45, 30);
+                this.playTone(180, 'square', 0.55, 0.35, 52);
                 setTimeout(() => this.playTone(523.25, 'triangle', 0.25, 0.25), 180);
                 setTimeout(() => this.playTone(659.25, 'triangle', 0.25, 0.25), 300);
                 setTimeout(() => this.playTone(783.99, 'triangle', 0.3, 0.3), 420);
-                setTimeout(() => this.playTone(1046.50, 'sawtooth', 0.6, 0.32), 540);
+                setTimeout(() => this.playTone(1046.50, 'sawtooth', 0.65, 0.34), 540);
             }
         }
         const sfx = new SoundEngine();
 
         // ============================================================================
-        // 2. MASSIVE 58-WEAPON ARSENAL (INSPIRED BY SUPREME DUELIST STICKMAN)
+        // 2. 58+ UNIQUE WEAPONS ARSENAL
         // ============================================================================
         const WEAPONS = [
-            // Melee & Blades (1-16)
-            { id: 'katana', name: 'Katana', cat: 'Qılınc', color: '#e2e8f0', accent: '#38bdf8', len: 68, dmg: 16, kb: 9, type: 'melee', special: 'dash', desc: 'İldırım sürəti ilə irəli atılır' },
-            { id: 'lightsaber_blue', name: 'Mavi İşıq Qılıncı', cat: 'Enerji', color: '#38bdf8', accent: '#bae6fd', len: 72, dmg: 19, kb: 10, type: 'melee', special: 'throw_return', desc: 'Fırlanaraq atılır və geri qayıdır' },
-            { id: 'lightsaber_red', name: 'Qırmızı İşıq Qılıncı', cat: 'Enerji', color: '#ef4444', accent: '#fecaca', len: 74, dmg: 21, kb: 11, type: 'melee', special: 'force_push', desc: 'Güclü enerji dalğası itələyir' },
-            { id: 'greatsword', name: 'Nəhəng Qılınc', cat: 'Ağır', color: '#94a3b8', accent: '#f59e0b', len: 84, dmg: 25, kb: 15, type: 'melee', special: 'slam', desc: 'Yeri titrədən ağır zərbə' },
-            { id: 'scythe', name: 'Əcəl Dəryazı', cat: 'Qaranlıq', color: '#a855f7', accent: '#1e1b4b', len: 80, dmg: 20, kb: 12, type: 'melee', special: 'pull', desc: 'Rəqibi özünə tərəf çəkir' },
-            { id: 'battle_axe', name: 'Döyüş Baltası', cat: 'Ağır', color: '#cbd5e1', accent: '#dc2626', len: 70, dmg: 23, kb: 14, type: 'melee', special: 'spin', desc: '360° fırlanan ölümcül zərbə' },
-            { id: 'spear', name: 'Qızıl Nizə', cat: 'Nizə', color: '#fbbf24', accent: '#fef08a', len: 88, dmg: 17, kb: 10, type: 'melee', special: 'dash', desc: 'Uzaq məsafəli deşici həmlə' },
-            { id: 'halberd', name: 'Alebarda', cat: 'Nizə', color: '#94a3b8', accent: '#f97316', len: 86, dmg: 21, kb: 13, type: 'melee', special: 'slam', desc: 'Balta və nizə kombinasiyası' },
-            { id: 'rapier', name: 'Rapira', cat: 'Qılınc', color: '#f8fafc', accent: '#eab308', len: 74, dmg: 14, kb: 7, type: 'melee', special: 'dash', desc: 'Çox sürətli ardıcıl zərbələr' },
-            { id: 'chainsaw', name: 'Elektrik Mişar', cat: 'Mexaniki', color: '#f97316', accent: '#334155', len: 66, dmg: 22, kb: 11, type: 'melee', special: 'dash', desc: 'Kəsici dişlərlə irəli şığıyır' },
-            { id: 'claymore', name: 'Kleymor', cat: 'Qılınc', color: '#64748b', accent: '#38bdf8', len: 82, dmg: 24, kb: 14, type: 'melee', special: 'shockwave', desc: 'Külək dalğası buraxır' },
-            { id: 'dual_daggers', name: 'İkili Xəncər', cat: 'Sürət', color: '#2dd4bf', accent: '#0f766e', len: 52, dmg: 15, kb: 8, type: 'melee', special: 'teleport_behind', desc: 'Rəqibin arxasına ışınlanır' },
-            { id: 'nunchucks', name: 'Nunçaku', cat: 'Sürət', color: '#d97706', accent: '#fde68a', len: 56, dmg: 16, kb: 10, type: 'melee', special: 'spin', desc: 'Sürətli fırlanma qalxanı' },
-            { id: 'sai', name: 'Ninja Sai', cat: 'Sürət', color: '#94a3b8', accent: '#ef4444', len: 54, dmg: 15, kb: 9, type: 'melee', special: 'projectile_fast', desc: 'Bıçaq enerjisi atır' },
-            { id: 'crystal_sword', name: 'Kristal Qılınc', cat: 'Sehrli', color: '#ec4899', accent: '#fbcfe8', len: 72, dmg: 19, kb: 11, type: 'melee', special: 'shard_burst', desc: 'Kristal qəlpələri saçır' },
-            { id: 'shadow_blade', name: 'Kölgə Qılıncı', cat: 'Qaranlıq', color: '#6366f1', accent: '#090d16', len: 74, dmg: 20, kb: 11, type: 'melee', special: 'teleport_behind', desc: 'Qaranlıq içindən zərbə vurur' },
+            { id: 'katana', name: 'Katana', cat: 'Qılınc', color: '#e2e8f0', accent: '#38bdf8', len: 74, dmg: 52, kb: 12, type: 'melee', special: 'dash', desc: 'İldırım sürəti ilə irəli atılır' },
+            { id: 'lightsaber_blue', name: 'Mavi İşıq Qılıncı', cat: 'Enerji', color: '#38bdf8', accent: '#bae6fd', len: 78, dmg: 58, kb: 13, type: 'melee', special: 'throw_return', desc: 'Fırlanaraq atılır və geri qayıdır' },
+            { id: 'lightsaber_red', name: 'Qırmızı İşıq Qılıncı', cat: 'Enerji', color: '#ef4444', accent: '#fecaca', len: 78, dmg: 62, kb: 14, type: 'melee', special: 'force_push', desc: 'Güclü enerji dalğası itələyir' },
+            { id: 'greatsword', name: 'Nəhəng Qılınc', cat: 'Ağır', color: '#94a3b8', accent: '#f59e0b', len: 90, dmg: 75, kb: 18, type: 'melee', special: 'slam', desc: 'Yeri titrədən ağır zərbə' },
+            { id: 'scythe', name: 'Əcəl Dəryazı', cat: 'Qaranlıq', color: '#a855f7', accent: '#1e1b4b', len: 86, dmg: 64, kb: 15, type: 'melee', special: 'pull', desc: 'Rəqibi özünə tərəf çəkir' },
+            { id: 'battle_axe', name: 'Döyüş Baltası', cat: 'Ağır', color: '#cbd5e1', accent: '#dc2626', len: 76, dmg: 70, kb: 17, type: 'melee', special: 'spin', desc: '360° fırlanan ölümcül zərbə' },
+            { id: 'spear', name: 'Qızıl Nizə', cat: 'Nizə', color: '#fbbf24', accent: '#fef08a', len: 94, dmg: 54, kb: 13, type: 'melee', special: 'dash', desc: 'Uzaq məsafəli deşici həmlə' },
+            { id: 'halberd', name: 'Alebarda', cat: 'Nizə', color: '#94a3b8', accent: '#f97316', len: 92, dmg: 66, kb: 16, type: 'melee', special: 'slam', desc: 'Balta və nizə kombinasiyası' },
+            { id: 'rapier', name: 'Rapira', cat: 'Qılınc', color: '#f8fafc', accent: '#eab308', len: 80, dmg: 48, kb: 10, type: 'melee', special: 'dash', desc: 'Çox sürətli ardıcıl zərbələr' },
+            { id: 'chainsaw', name: 'Elektrik Mişar', cat: 'Mexaniki', color: '#f97316', accent: '#334155', len: 72, dmg: 68, kb: 14, type: 'melee', special: 'dash', desc: 'Kəsici dişlərlə irəli şığıyır' },
+            { id: 'claymore', name: 'Kleymor', cat: 'Qılınc', color: '#64748b', accent: '#38bdf8', len: 88, dmg: 72, kb: 17, type: 'melee', special: 'shockwave', desc: 'Külək dalğası buraxır' },
+            { id: 'dual_daggers', name: 'İkili Xəncər', cat: 'Sürət', color: '#2dd4bf', accent: '#0f766e', len: 58, dmg: 46, kb: 11, type: 'melee', special: 'teleport_behind', desc: 'Rəqibin arxasına ışınlanır' },
+            { id: 'nunchucks', name: 'Nunçaku', cat: 'Sürət', color: '#d97706', accent: '#fde68a', len: 62, dmg: 50, kb: 13, type: 'melee', special: 'spin', desc: 'Sürətli fırlanma qalxanı' },
+            { id: 'sai', name: 'Ninja Sai', cat: 'Sürət', color: '#94a3b8', accent: '#ef4444', len: 60, dmg: 48, kb: 12, type: 'melee', special: 'projectile_fast', desc: 'Bıçaq enerjisi atır' },
+            { id: 'crystal_sword', name: 'Kristal Qılınc', cat: 'Sehrli', color: '#ec4899', accent: '#fbcfe8', len: 78, dmg: 60, kb: 14, type: 'melee', special: 'shard_burst', desc: 'Kristal qəlpələri saçır' },
+            { id: 'shadow_blade', name: 'Kölgə Qılıncı', cat: 'Qaranlıq', color: '#6366f1', accent: '#090d16', len: 80, dmg: 62, kb: 14, type: 'melee', special: 'teleport_behind', desc: 'Qaranlıq içindən zərbə vurur' },
 
-            // Heavy & Blunt (17-28)
-            { id: 'mjolnir', name: 'Mjolnir (Tor Çəkici)', cat: 'Əfsanəvi', color: '#60a5fa', accent: '#93c5fd', len: 62, dmg: 26, kb: 17, type: 'melee', special: 'throw_return', desc: 'Atılır, ildırım vurur və ələ qayıdır!' },
-            { id: 'war_hammer', name: 'Döyüş Çəkici', cat: 'Ağır', color: '#78716c', accent: '#ef4444', len: 76, dmg: 27, kb: 18, type: 'melee', special: 'slam', desc: 'Rəqibi xəritədən uçurur' },
-            { id: 'spiked_club', name: 'Tikanlı Gürz', cat: 'Ağır', color: '#92400e', accent: '#cbd5e1', len: 72, dmg: 23, kb: 15, type: 'melee', special: 'slam', desc: 'Ağır zərbə və yüksək itələmə' },
-            { id: 'mace', name: 'Qızıl Əmud', cat: 'Ağır', color: '#f59e0b', accent: '#fef08a', len: 68, dmg: 22, kb: 14, type: 'melee', special: 'shockwave', desc: 'Şok dalğası yaradır' },
-            { id: 'giant_wrench', name: 'Nəhəng Açar', cat: 'Əyləncəli', color: '#94a3b8', accent: '#f97316', len: 72, dmg: 21, kb: 14, type: 'melee', special: 'spin', desc: 'Mexaniki fırlanma zərbəsi' },
-            { id: 'frying_pan', name: 'Tava (Frying Pan)', cat: 'Əyləncəli', color: '#334155', accent: '#facc15', len: 58, dmg: 20, kb: 16, type: 'melee', special: 'reflect', desc: 'Mərmiləri geri qaytarır!' },
-            { id: 'anchor', name: 'Gəmi Lövbəri', cat: 'Ağır', color: '#0284c7', accent: '#bae6fd', len: 78, dmg: 26, kb: 17, type: 'melee', special: 'pull', desc: 'Rəqibi lövbərlə dartır' },
-            { id: 'boxing_gloves', name: 'Boks Əlcəkləri', cat: 'Əyləncəli', color: '#ef4444', accent: '#ffffff', len: 48, dmg: 18, kb: 16, type: 'melee', special: 'dash', desc: 'Super nokaut yumruğu' },
-            { id: 'bo_staff', name: 'Bo Əsası', cat: 'Döyüş', color: '#b45309', accent: '#fde68a', len: 86, dmg: 16, kb: 12, type: 'melee', special: 'spin', desc: 'İki tərəfli müdafiə fırlanması' },
-            { id: 'tonfa', name: 'Polis Tonfası', cat: 'Döyüş', color: '#1e293b', accent: '#38bdf8', len: 54, dmg: 16, kb: 10, type: 'melee', special: 'reflect', desc: 'Zərbələri bloklayır' },
-            { id: 'sledgehammer', name: 'Balyoz', cat: 'Ağır', color: '#475569', accent: '#facc15', len: 78, dmg: 28, kb: 19, type: 'melee', special: 'slam', desc: 'Ən güclü itələmə zərbəsi' },
-            { id: 'baseball_bat', name: 'Beysbol Çubuğu', cat: 'Əyləncəli', color: '#d97706', accent: '#ef4444', len: 68, dmg: 19, kb: 18, type: 'melee', special: 'homerun', desc: 'Home-Run uçuş zərbəsi!' },
+            { id: 'mjolnir', name: 'Mjolnir (Tor Çəkici)', cat: 'Əfsanəvi', color: '#60a5fa', accent: '#93c5fd', len: 68, dmg: 78, kb: 20, type: 'melee', special: 'throw_return', desc: 'Atılır, ildırım vurur və ələ qayıdır!' },
+            { id: 'war_hammer', name: 'Döyüş Çəkici', cat: 'Ağır', color: '#78716c', accent: '#ef4444', len: 82, dmg: 80, kb: 21, type: 'melee', special: 'slam', desc: 'Rəqibi xəritədən uçurur' },
+            { id: 'spiked_club', name: 'Tikanlı Gürz', cat: 'Ağır', color: '#92400e', accent: '#cbd5e1', len: 78, dmg: 70, kb: 18, type: 'melee', special: 'slam', desc: 'Ağır zərbə və yüksək itələmə' },
+            { id: 'mace', name: 'Qızıl Əmud', cat: 'Ağır', color: '#f59e0b', accent: '#fef08a', len: 74, dmg: 66, kb: 17, type: 'melee', special: 'shockwave', desc: 'Şok dalğası yaradır' },
+            { id: 'giant_wrench', name: 'Nəhəng Açar', cat: 'Əyləncəli', color: '#94a3b8', accent: '#f97316', len: 78, dmg: 64, kb: 17, type: 'melee', special: 'spin', desc: 'Mexaniki fırlanma zərbəsi' },
+            { id: 'frying_pan', name: 'Tava (Frying Pan)', cat: 'Əyləncəli', color: '#334155', accent: '#facc15', len: 64, dmg: 60, kb: 19, type: 'melee', special: 'reflect', desc: 'Mərmiləri geri qaytarır!' },
+            { id: 'anchor', name: 'Gəmi Lövbəri', cat: 'Ağır', color: '#0284c7', accent: '#bae6fd', len: 84, dmg: 76, kb: 20, type: 'melee', special: 'pull', desc: 'Rəqibi lövbərlə dartır' },
+            { id: 'boxing_gloves', name: 'Boks Əlcəkləri', cat: 'Əyləncəli', color: '#ef4444', accent: '#ffffff', len: 54, dmg: 56, kb: 19, type: 'melee', special: 'dash', desc: 'Super nokaut yumruğu' },
+            { id: 'bo_staff', name: 'Bo Əsası', cat: 'Döyüş', color: '#b45309', accent: '#fde68a', len: 92, dmg: 52, kb: 15, type: 'melee', special: 'spin', desc: 'İki tərəfli müdafiə fırlanması' },
+            { id: 'tonfa', name: 'Polis Tonfası', cat: 'Döyüş', color: '#1e293b', accent: '#38bdf8', len: 60, dmg: 50, kb: 13, type: 'melee', special: 'reflect', desc: 'Zərbələri bloklayır' },
+            { id: 'sledgehammer', name: 'Balyoz', cat: 'Ağır', color: '#475569', accent: '#facc15', len: 84, dmg: 84, kb: 22, type: 'melee', special: 'slam', desc: 'Ən güclü itələmə zərbəsi' },
+            { id: 'baseball_bat', name: 'Beysbol Çubuğu', cat: 'Əyləncəli', color: '#d97706', accent: '#ef4444', len: 74, dmg: 58, kb: 21, type: 'melee', special: 'homerun', desc: 'Home-Run uçuş zərbəsi!' },
 
-            // Ranged & Projectiles (29-43)
-            { id: 'bow', name: 'Kaman və Ox', cat: 'Uzaq', color: '#d97706', accent: '#fef08a', len: 52, dmg: 16, kb: 10, type: 'ranged', proj: 'arrow', special: 'multishot', desc: '3 ox birdən atır' },
-            { id: 'crossbow', name: 'Arbalet', cat: 'Uzaq', color: '#78350f', accent: '#38bdf8', len: 56, dmg: 20, kb: 12, type: 'ranged', proj: 'bolt', special: 'projectile_fast', desc: 'Sürətli zirehdələn ox' },
-            { id: 'sniper', name: 'Snayper Tüfəngi', cat: 'Odlu', color: '#334155', accent: '#ef4444', len: 82, dmg: 30, kb: 16, type: 'ranged', proj: 'sniper', special: 'projectile_fast', desc: 'Çox yüksək zərərli lazer nişangah' },
-            { id: 'shotgun', name: 'Ov Tüfəngi (Shotgun)', cat: 'Odlu', color: '#475569', accent: '#f97316', len: 66, dmg: 12, kb: 14, type: 'ranged', proj: 'pellet', special: 'multishot', desc: 'Yaxından dağıdıcı saçma' },
-            { id: 'dual_pistols', name: 'İkili Tapança', cat: 'Odlu', color: '#94a3b8', accent: '#facc15', len: 46, dmg: 13, kb: 8, type: 'ranged', proj: 'bullet', special: 'rapid', desc: 'Sürətli atəş seriyası' },
-            { id: 'minigun', name: 'Minigun Pulemyot', cat: 'Odlu', color: '#1e293b', accent: '#f59e0b', len: 74, dmg: 10, kb: 7, type: 'ranged', proj: 'bullet', special: 'rapid', desc: 'Mərmi yağışı yağdırır' },
-            { id: 'rocket_launcher', name: 'Raketatan (RPG)', cat: 'Partlayıcı', color: '#15803d', accent: '#ef4444', len: 76, dmg: 28, kb: 19, type: 'ranged', proj: 'rocket', special: 'boom', desc: 'Böyük partlayış yaradır' },
-            { id: 'laser_gun', name: 'Lazer Tapançası', cat: 'Enerji', color: '#06b6d4', accent: '#cffafe', len: 56, dmg: 17, kb: 9, type: 'ranged', proj: 'laser', special: 'beam', desc: 'İşıq sürətində lazer şüası' },
-            { id: 'plasma_rifle', name: 'Plazma Tüfəngi', cat: 'Enerji', color: '#8b5cf6', accent: '#ddd6fe', len: 68, dmg: 21, kb: 13, type: 'ranged', proj: 'plasma', special: 'boom', desc: 'Partlayan plazma kürəsi' },
-            { id: 'shuriken', name: 'Nəhəng Şuriken', cat: 'Ninja', color: '#cbd5e1', accent: '#38bdf8', len: 46, dmg: 15, kb: 9, type: 'ranged', proj: 'shuriken', special: 'multishot', desc: 'Fırlanan ninja ulduzları' },
-            { id: 'boomerang', name: 'Bumeranq', cat: 'Uzaq', color: '#f59e0b', accent: '#ef4444', len: 50, dmg: 17, kb: 11, type: 'ranged', proj: 'boomerang', special: 'throw_return', desc: 'Dövrə vurub geri qayıdır' },
-            { id: 'harpoon', name: 'Harpun (Qarmaq)', cat: 'Xüsusi', color: '#38bdf8', accent: '#facc15', len: 68, dmg: 16, kb: 12, type: 'ranged', proj: 'harpoon', special: 'pull', desc: 'Rəqibi qarmaqla özünə çəkir!' },
-            { id: 'blowpipe', name: 'Zəhərli Boru', cat: 'Uzaq', color: '#22c55e', accent: '#bbf7d0', len: 64, dmg: 14, kb: 7, type: 'ranged', proj: 'poison', special: 'multishot', desc: 'Zəhərli iynələr atır' },
-            { id: 'grenade_launcher', name: 'Qranataatan', cat: 'Partlayıcı', color: '#4d7c0f', accent: '#f97316', len: 66, dmg: 25, kb: 17, type: 'ranged', proj: 'bomb', special: 'boom', desc: 'Sıçrayan bombalar atır' },
-            { id: 'railgun', name: 'Elektromaqnit Top', cat: 'Enerji', color: '#2563eb', accent: '#93c5fd', len: 82, dmg: 29, kb: 18, type: 'ranged', proj: 'laser', special: 'beam', desc: 'Bütün xətti deşib keçir' },
+            { id: 'bow', name: 'Kaman və Ox', cat: 'Uzaq', color: '#d97706', accent: '#fef08a', len: 56, dmg: 48, kb: 12, type: 'ranged', proj: 'arrow', special: 'multishot', desc: '3 ox birdən atır' },
+            { id: 'crossbow', name: 'Arbalet', cat: 'Uzaq', color: '#78350f', accent: '#38bdf8', len: 60, dmg: 60, kb: 15, type: 'ranged', proj: 'bolt', special: 'projectile_fast', desc: 'Sürətli zirehdələn ox' },
+            { id: 'sniper', name: 'Snayper Tüfəngi', cat: 'Odlu', color: '#334155', accent: '#ef4444', len: 86, dmg: 88, kb: 19, type: 'ranged', proj: 'sniper', special: 'projectile_fast', desc: 'Çox yüksək zərərli lazer nişangah' },
+            { id: 'shotgun', name: 'Ov Tüfəngi (Shotgun)', cat: 'Odlu', color: '#475569', accent: '#f97316', len: 70, dmg: 38, kb: 17, type: 'ranged', proj: 'pellet', special: 'multishot', desc: 'Yaxından dağıdıcı saçma' },
+            { id: 'dual_pistols', name: 'İkili Tapança', cat: 'Odlu', color: '#94a3b8', accent: '#facc15', len: 50, dmg: 40, kb: 10, type: 'ranged', proj: 'bullet', special: 'rapid', desc: 'Sürətli atəş seriyası' },
+            { id: 'minigun', name: 'Minigun Pulemyot', cat: 'Odlu', color: '#1e293b', accent: '#f59e0b', len: 78, dmg: 32, kb: 9, type: 'ranged', proj: 'bullet', special: 'rapid', desc: 'Mərmi yağışı yağdırır' },
+            { id: 'rocket_launcher', name: 'Raketatan (RPG)', cat: 'Partlayıcı', color: '#15803d', accent: '#ef4444', len: 80, dmg: 82, kb: 22, type: 'ranged', proj: 'rocket', special: 'boom', desc: 'Böyük partlayış yaradır' },
+            { id: 'laser_gun', name: 'Lazer Tapançası', cat: 'Enerji', color: '#06b6d4', accent: '#cffafe', len: 60, dmg: 52, kb: 12, type: 'ranged', proj: 'laser', special: 'beam', desc: 'İşıq sürətində lazer şüası' },
+            { id: 'plasma_rifle', name: 'Plazma Tüfəngi', cat: 'Enerji', color: '#8b5cf6', accent: '#ddd6fe', len: 72, dmg: 64, kb: 16, type: 'ranged', proj: 'plasma', special: 'boom', desc: 'Partlayan plazma kürəsi' },
+            { id: 'shuriken', name: 'Nəhəng Şuriken', cat: 'Ninja', color: '#cbd5e1', accent: '#38bdf8', len: 50, dmg: 46, kb: 11, type: 'ranged', proj: 'shuriken', special: 'multishot', desc: 'Fırlanan ninja ulduzları' },
+            { id: 'boomerang', name: 'Bumeranq', cat: 'Uzaq', color: '#f59e0b', accent: '#ef4444', len: 54, dmg: 52, kb: 14, type: 'ranged', proj: 'boomerang', special: 'throw_return', desc: 'Dövrə vurub geri qayıdır' },
+            { id: 'harpoon', name: 'Harpun (Qarmaq)', cat: 'Xüsusi', color: '#38bdf8', accent: '#facc15', len: 72, dmg: 48, kb: 15, type: 'ranged', proj: 'harpoon', special: 'pull', desc: 'Rəqibi qarmaqla özünə çəkir!' },
+            { id: 'blowpipe', name: 'Zəhərli Boru', cat: 'Uzaq', color: '#22c55e', accent: '#bbf7d0', len: 68, dmg: 42, kb: 9, type: 'ranged', proj: 'poison', special: 'multishot', desc: 'Zəhərli iynələr atır' },
+            { id: 'grenade_launcher', name: 'Qranataatan', cat: 'Partlayıcı', color: '#4d7c0f', accent: '#f97316', len: 70, dmg: 74, kb: 20, type: 'ranged', proj: 'bomb', special: 'boom', desc: 'Sıçrayan bombalar atır' },
+            { id: 'railgun', name: 'Elektromaqnit Top', cat: 'Enerji', color: '#2563eb', accent: '#93c5fd', len: 86, dmg: 85, kb: 21, type: 'ranged', proj: 'laser', special: 'beam', desc: 'Bütün xətti deşib keçir' },
 
-            // Magic & Elemental (44-52)
-            { id: 'fire_staff', name: 'Alov Əsası', cat: 'Sehrli', color: '#f97316', accent: '#fef08a', len: 76, dmg: 20, kb: 12, type: 'ranged', proj: 'fireball', special: 'boom', desc: 'Alov kürələri yağdırır' },
-            { id: 'ice_wand', name: 'Buz Əsası', cat: 'Sehrli', color: '#38bdf8', accent: '#ffffff', len: 72, dmg: 16, kb: 10, type: 'ranged', proj: 'ice', special: 'freeze', desc: 'Rəqibi dondurub yavaşladır!' },
-            { id: 'lightning_trident', name: 'İldırım Üçdişlisi', cat: 'Əfsanəvi', color: '#facc15', accent: '#38bdf8', len: 84, dmg: 22, kb: 13, type: 'melee', special: 'lightning', desc: 'Göydən ildırım endirir!' },
-            { id: 'portal_gun', name: 'Portal Silahı', cat: 'Xüsusi', color: '#f97316', accent: '#38bdf8', len: 58, dmg: 14, kb: 10, type: 'ranged', proj: 'portal', special: 'teleport_cursor', desc: 'İstədiyin nöqtəyə ışınlan!' },
-            { id: 'gravity_orb', name: 'Qravitasiya Kürəsi', cat: 'Sehrli', color: '#9333ea', accent: '#f0abfc', len: 60, dmg: 18, kb: 16, type: 'ranged', proj: 'gravity', special: 'blackhole', desc: 'Qara dəlik yaradıb hamını çəkir' },
-            { id: 'necro_staff', name: 'Nekromant Əsası', cat: 'Qaranlıq', color: '#10b981', accent: '#064e3b', len: 76, dmg: 19, kb: 11, type: 'ranged', proj: 'skull', special: 'multishot', desc: 'Uçan ruh kəllələri göndərir' },
-            { id: 'wind_fan', name: 'Fırtına Yelpiyi', cat: 'Sehrli', color: '#2dd4bf', accent: '#ccfbf1', len: 56, dmg: 13, kb: 19, type: 'ranged', proj: 'wind', special: 'force_push', desc: 'Rəqibləri qasırğa ilə uçurur' },
-            { id: 'sun_staff', name: 'Günəş Əsası', cat: 'Sehrli', color: '#eab308', accent: '#ef4444', len: 78, dmg: 23, kb: 14, type: 'ranged', proj: 'fireball', special: 'beam', desc: 'Günəş şüası ilə yandırır' },
-            { id: 'void_ring', name: 'Boşluq Halqası', cat: 'Qaranlıq', color: '#4f46e5', accent: '#c7d2fe', len: 54, dmg: 20, kb: 13, type: 'ranged', proj: 'gravity', special: 'teleport_behind', desc: 'Məkanı bükərək hücum edir' },
+            { id: 'fire_staff', name: 'Alov Əsası', cat: 'Sehrli', color: '#f97316', accent: '#fef08a', len: 80, dmg: 60, kb: 15, type: 'ranged', proj: 'fireball', special: 'boom', desc: 'Alov kürələri yağdırır' },
+            { id: 'ice_wand', name: 'Buz Əsası', cat: 'Sehrli', color: '#38bdf8', accent: '#ffffff', len: 76, dmg: 48, kb: 12, type: 'ranged', proj: 'ice', special: 'freeze', desc: 'Rəqibi dondurub yavaşladır!' },
+            { id: 'lightning_trident', name: 'İldırım Üçdişlisi', cat: 'Əfsanəvi', color: '#facc15', accent: '#38bdf8', len: 88, dmg: 66, kb: 16, type: 'melee', special: 'lightning', desc: 'Göydən ildırım endirir!' },
+            { id: 'portal_gun', name: 'Portal Silahı', cat: 'Xüsusi', color: '#f97316', accent: '#38bdf8', len: 62, dmg: 44, kb: 12, type: 'ranged', proj: 'portal', special: 'teleport_cursor', desc: 'İstədiyin nöqtəyə ışınlan!' },
+            { id: 'gravity_orb', name: 'Qravitasiya Kürəsi', cat: 'Sehrli', color: '#9333ea', accent: '#f0abfc', len: 64, dmg: 54, kb: 19, type: 'ranged', proj: 'gravity', special: 'blackhole', desc: 'Qara dəlik yaradıb hamını çəkir' },
+            { id: 'necro_staff', name: 'Nekromant Əsası', cat: 'Qaranlıq', color: '#10b981', accent: '#064e3b', len: 80, dmg: 56, kb: 14, type: 'ranged', proj: 'skull', special: 'multishot', desc: 'Uçan ruh kəllələri göndərir' },
+            { id: 'wind_fan', name: 'Fırtına Yelpiyi', cat: 'Sehrli', color: '#2dd4bf', accent: '#ccfbf1', len: 60, dmg: 40, kb: 22, type: 'ranged', proj: 'wind', special: 'force_push', desc: 'Rəqibləri qasırğa ilə uçurur' },
+            { id: 'sun_staff', name: 'Günəş Əsası', cat: 'Sehrli', color: '#eab308', accent: '#ef4444', len: 82, dmg: 68, kb: 17, type: 'ranged', proj: 'fireball', special: 'beam', desc: 'Günəş şüası ilə yandırır' },
+            { id: 'void_ring', name: 'Boşluq Halqası', cat: 'Qaranlıq', color: '#4f46e5', accent: '#c7d2fe', len: 58, dmg: 60, kb: 16, type: 'ranged', proj: 'gravity', special: 'teleport_behind', desc: 'Məkanı bükərək hücum edir' },
 
-            // Wacky & Special Supreme Duelist Classics (53-58)
-            { id: 'guitar', name: 'Rok Gitara 🎸', cat: 'Əfsanəvi', color: '#ef4444', accent: '#facc15', len: 70, dmg: 18, kb: 13, type: 'ranged', proj: 'note', special: 'music_wave', desc: 'Musiqi notları ilə rəqibi uçurur!' },
-            { id: 'umbrella', name: 'Sehrli Çətir ☂️', cat: 'Xüsusi', color: '#ec4899', accent: '#fbcfe8', len: 66, dmg: 15, kb: 11, type: 'melee', special: 'float_shield', desc: 'Havada süzülür və zərbəni bloklayır' },
-            { id: 'shield', name: 'Sparta Qalxanı 🛡️', cat: 'Müdafiə', color: '#f59e0b', accent: '#b45309', len: 52, dmg: 17, kb: 15, type: 'melee', special: 'reflect', desc: 'Mərmiləri geri əks etdirir' },
-            { id: 'yoyo', name: 'Alovlu Yo-Yo', cat: 'Əyləncəli', color: '#22d3ee', accent: '#f43f5e', len: 76, dmg: 17, kb: 12, type: 'melee', special: 'throw_return', desc: 'Uzağa uzanıb geri qayıdır' },
-            { id: 'whip', name: 'İldırım Qamçısı', cat: 'Xüsusi', color: '#a855f7', accent: '#fde047', len: 88, dmg: 18, kb: 13, type: 'melee', special: 'pull', desc: 'Uzaqdan şaqqıltı ilə vurur' },
-            { id: 'time_clock', name: 'Zaman Saatı ⏳', cat: 'Əfsanəvi', color: '#fbbf24', accent: '#38bdf8', len: 58, dmg: 18, kb: 12, type: 'ranged', proj: 'laser', special: 'freeze', desc: 'Zamanı dondurub rəqibi saxlayır!' }
+            { id: 'guitar', name: 'Rok Gitara 🎸', cat: 'Əfsanəvi', color: '#ef4444', accent: '#facc15', len: 74, dmg: 54, kb: 16, type: 'ranged', proj: 'note', special: 'music_wave', desc: 'Musiqi notları ilə rəqibi uçurur!' },
+            { id: 'umbrella', name: 'Sehrli Çətir ☂️', cat: 'Xüsusi', color: '#ec4899', accent: '#fbcfe8', len: 70, dmg: 46, kb: 14, type: 'melee', special: 'float_shield', desc: 'Havada süzülür və zərbəni bloklayır' },
+            { id: 'shield', name: 'Sparta Qalxanı 🛡️', cat: 'Müdafiə', color: '#f59e0b', accent: '#b45309', len: 56, dmg: 52, kb: 18, type: 'melee', special: 'reflect', desc: 'Mərmiləri geri əks etdirir' },
+            { id: 'yoyo', name: 'Alovlu Yo-Yo', cat: 'Əyləncəli', color: '#22d3ee', accent: '#f43f5e', len: 80, dmg: 52, kb: 15, type: 'melee', special: 'throw_return', desc: 'Uzağa uzanıb geri qayıdır' },
+            { id: 'whip', name: 'İldırım Qamçısı', cat: 'Xüsusi', color: '#a855f7', accent: '#fde047', len: 92, dmg: 54, kb: 16, type: 'melee', special: 'pull', desc: 'Uzaqdan şaqqıltı ilə vurur' },
+            { id: 'time_clock', name: 'Zaman Saatı ⏳', cat: 'Əfsanəvi', color: '#fbbf24', accent: '#38bdf8', len: 62, dmg: 54, kb: 15, type: 'ranged', proj: 'laser', special: 'freeze', desc: 'Zamanı dondurub rəqibi saxlayır!' }
         ];
 
         // ============================================================================
-        // 3. SKINS, COLORS & ARENA MAPS
+        // 3. 12 COLORS, 15 SKINS & 4 MULTI-LEVEL ARENAS (NO INSTANT FALL DEATH!)
         // ============================================================================
         const COLORS = [
             { id: 'cyan', hex: '#22d3ee', name: 'Firuzəyi' },
@@ -566,7 +555,9 @@
             { id: 'pink', hex: '#f472b6', name: 'Çəhrayı' },
             { id: 'white', hex: '#f8fafc', name: 'Ağ' },
             { id: 'blue', hex: '#3b82f6', name: 'Göy' },
-            { id: 'lime', hex: '#a3e635', name: 'Laym' }
+            { id: 'lime', hex: '#a3e635', name: 'Laym' },
+            { id: 'teal', hex: '#14b8a6', name: 'Zümrüd' },
+            { id: 'rose', hex: '#fb7185', name: 'Al-Qırmızı' }
         ];
 
         const SKINS = [
@@ -581,87 +572,88 @@
             { id: 'pirate', name: 'Pirat' },
             { id: 'viking', name: 'Vikinq' },
             { id: 'wizard', name: 'Sehrbaz' },
-            { id: 'panda', name: 'Panda' }
+            { id: 'panda', name: 'Panda' },
+            { id: 'astronaut', name: 'Astronavt' },
+            { id: 'hacker', name: 'Haker' },
+            { id: 'reaper', name: 'Ruh Ovçusu' }
         ];
 
+        // Arenas have a solid bottom floor / bounce surface so falling off a truck NEVER kills you instantly!
         const MAPS = [
             {
                 id: 'trucks',
-                name: 'Yük Maşınları',
-                skyTop: '#60a5fa',
-                skyBot: '#dbeafe',
-                hazard: 'Su / Uçurum',
-                hazardColor: '#0284c7',
+                name: 'Kamaz Yolu (Asfaltlı)',
+                skyTop: '#38bdf8',
+                skyBot: '#e0f2fe',
+                floorType: 'road', // Solid asphalt road below trucks! You can jump right back up!
+                floorColor: '#1e293b',
+                desc: 'Kamazdan düşəndə ölmürsən, asfaltdan sıçrayıb geri qalxırsan!',
                 platforms: [
-                    { x: 140, y: 470, w: 360, h: 140, style: 'truck_blue' },
-                    { x: 560, y: 490, w: 340, h: 130, style: 'truck_red' }
+                    { x: 100, y: 440, w: 380, h: 165, style: 'truck_blue' },
+                    { x: 560, y: 455, w: 380, h: 150, style: 'truck_red' }
                 ]
             },
             {
                 id: 'anubis',
                 name: 'Anubis Məbədi',
                 skyTop: '#0284c7',
-                skyBot: '#fcd34d',
-                hazard: 'Qızmar Qum',
-                hazardColor: '#d97706',
+                skyBot: '#fde68a',
+                floorType: 'stone',
+                floorColor: '#b45309',
+                desc: 'Qədim Misir məbədi — çoxmərtəbəli daş platformalar',
                 platforms: [
-                    { x: 120, y: 540, w: 800, h: 90, style: 'temple_floor' },
-                    { x: 320, y: 390, w: 400, h: 32, style: 'temple_plat' },
-                    { x: 110, y: 270, w: 190, h: 28, style: 'temple_plat' },
-                    { x: 740, y: 270, w: 190, h: 28, style: 'temple_plat' }
-                ]
-            },
-            {
-                id: 'lava',
-                name: 'Vulkan Lavası',
-                skyTop: '#1e1b4b',
-                skyBot: '#7f1d1d',
-                hazard: 'Qaynar Lava',
-                hazardColor: '#ef4444',
-                platforms: [
-                    { x: 180, y: 460, w: 240, h: 36, style: 'obsidian' },
-                    { x: 620, y: 460, w: 240, h: 36, style: 'obsidian' },
-                    { x: 400, y: 330, w: 240, h: 32, style: 'obsidian' }
-                ]
-            },
-            {
-                id: 'cyber',
-                name: 'Kiber Arena',
-                skyTop: '#090d16',
-                skyBot: '#1e1b4b',
-                hazard: 'Kiber Boşluq',
-                hazardColor: '#8b5cf6',
-                platforms: [
-                    { x: 200, y: 500, w: 640, h: 34, style: 'neon' },
-                    { x: 160, y: 340, w: 210, h: 24, style: 'neon' },
-                    { x: 670, y: 340, w: 210, h: 24, style: 'neon' }
+                    { x: 310, y: 420, w: 420, h: 34, style: 'temple_plat' },
+                    { x: 90, y: 280, w: 210, h: 28, style: 'temple_plat' },
+                    { x: 740, y: 280, w: 210, h: 28, style: 'temple_plat' }
                 ]
             },
             {
                 id: 'islands',
-                name: 'Uçan Adalar',
+                name: 'Tramplin Adaları',
                 skyTop: '#0ea5e9',
                 skyBot: '#bae6fd',
-                hazard: 'Səma Boşluğu',
-                hazardColor: '#38bdf8',
+                floorType: 'trampoline', // Elastic trampoline floor bounces players high into the air!
+                floorColor: '#06b6d4',
+                desc: 'Aşağı düşəndə elastik batut səni yenidən göyə atır!',
                 platforms: [
-                    { x: 150, y: 480, w: 220, h: 45, style: 'grass' },
-                    { x: 410, y: 420, w: 220, h: 45, style: 'grass' },
-                    { x: 670, y: 480, w: 220, h: 45, style: 'grass' }
+                    { x: 140, y: 450, w: 230, h: 42, style: 'grass' },
+                    { x: 405, y: 360, w: 230, h: 42, style: 'grass' },
+                    { x: 670, y: 450, w: 230, h: 42, style: 'grass' }
+                ]
+            },
+            {
+                id: 'lava',
+                name: 'Vulkan Zavodu',
+                skyTop: '#1e1b4b',
+                skyBot: '#7f1d1d',
+                floorType: 'lava_bounce', // Lava bounces you upward with fire sparks and deals small burn damage (not instant death!)
+                floorColor: '#ef4444',
+                desc: 'Lava səni yuxarı sıçradır və azca yandırır (ani ölüm yoxdur)',
+                platforms: [
+                    { x: 160, y: 450, w: 250, h: 36, style: 'obsidian' },
+                    { x: 630, y: 450, w: 250, h: 36, style: 'obsidian' },
+                    { x: 395, y: 315, w: 250, h: 32, style: 'obsidian' }
                 ]
             }
         ];
 
         // ============================================================================
-        // 4. FIREBASE MULTIPLAYER + SEAMLESS LOCAL FALLBACK
+        // 4. REAL-TIME FIREBASE MULTIPLAYER ROOMS + BROADCASTCHANNEL SYNC
         // ============================================================================
         let db = null;
         let auth = null;
-        let currentUserId = 'player_' + Math.random().toString(36).substring(2, 9);
         let firebaseReady = false;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'supreme-stickman-duel';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'supreme-duelist-stickman-v2';
+
+        // Unique session ID per browser tab so even 2 tabs on same PC can join each other!
+        const currentUserId = 'usr_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36).slice(-4);
+
+        // BroadcastChannel as instant ultra-fast bridge for same-browser tabs alongside Firestore
+        const localBus = ('BroadcastChannel' in window) ? new BroadcastChannel('supreme_stickman_rooms') : null;
+        const localRoomCache = {};
 
         async function initFirebase() {
+            const pill = document.getElementById('serverStatusPill');
             try {
                 if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                     const firebaseConfig = JSON.parse(__firebase_config);
@@ -673,30 +665,34 @@
                     } else {
                         await signInAnonymously(auth);
                     }
-                    if (auth.currentUser) {
-                        currentUserId = auth.currentUser.uid;
-                    }
                     firebaseReady = true;
+                    pill.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                    pill.textContent = '● Onlayn Serverə Qoşuldu (Hazır)';
+                } else {
+                    pill.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+                    pill.textContent = '● Lokal Şəbəkə Rejimi Aktivdir';
                 }
             } catch (e) {
-                console.warn("Firebase offline mode active:", e);
+                console.warn("Firebase fallback:", e);
                 firebaseReady = false;
+                pill.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+                pill.textContent = '● Şəbəkə Rejimi Aktivdir';
             }
         }
         initFirebase();
 
-        // Room State
         let roomState = {
             code: null,
             adminId: null,
             status: 'menu', // 'lobby' | 'playing' | 'victory'
             mapId: 'trucks',
             players: [], // { id, name, color, skin, isBot, weaponId }
-            winner: null
+            winnerId: null
         };
         let roomUnsubscribe = null;
+        let stateSyncTimer = null;
+        let lastSentInputTs = 0;
 
-        // Local Player Profile (Customized inside room!)
         let myProfile = {
             name: '',
             color: COLORS[0].hex,
@@ -713,54 +709,114 @@
             window._toastTimer = setTimeout(() => {
                 box.classList.add('opacity-0', '-translate-y-4');
                 box.classList.remove('opacity-100', 'translate-y-0');
-            }, 2600);
+            }, 2800);
         }
 
         function getRoomDocRef(code) {
-            return doc(db, 'artifacts', appId, 'public', 'data', 'rooms', code);
+            return doc(db, 'artifacts', appId, 'public', 'data', 'rooms', String(code));
         }
 
-        async function syncRoomToCloud() {
-            if (!firebaseReady || !db || !roomState.code) return;
-            try {
-                await setDoc(getRoomDocRef(roomState.code), {
-                    code: roomState.code,
-                    adminId: roomState.adminId,
-                    status: roomState.status,
-                    mapId: roomState.mapId,
-                    players: roomState.players,
-                    winner: roomState.winner || null,
-                    updatedAt: Date.now()
-                });
-            } catch (err) {
-                console.error("Sync error:", err);
-            }
+        function getInputsDocRef(code) {
+            return doc(db, 'artifacts', appId, 'public', 'data', 'room_inputs', String(code));
         }
 
-        function listenToRoom(code) {
-            if (roomUnsubscribe) {
-                roomUnsubscribe();
-                roomUnsubscribe = null;
-            }
-            if (!firebaseReady || !db) return;
-            roomUnsubscribe = onSnapshot(getRoomDocRef(code), (snap) => {
-                if (!snap.exists()) return;
-                const data = snap.data();
-                const prevStatus = roomState.status;
-                roomState = { ...roomState, ...data };
-                updateLobbyUI();
+        function getLiveStateDocRef(code) {
+            return doc(db, 'artifacts', appId, 'public', 'data', 'room_live', String(code));
+        }
 
-                if (prevStatus !== 'playing' && roomState.status === 'playing') {
-                    startArenaMatch(false);
-                } else if (prevStatus === 'playing' && roomState.status === 'lobby') {
-                    showScreen('lobby');
+        async function writeRoomState() {
+            if (!roomState.code) return;
+            const payload = {
+                code: String(roomState.code),
+                adminId: roomState.adminId,
+                status: roomState.status,
+                mapId: roomState.mapId,
+                players: roomState.players,
+                winnerId: roomState.winnerId || null,
+                updatedAt: Date.now()
+            };
+            localRoomCache[payload.code] = payload;
+            if (localBus) {
+                localBus.postMessage({ type: 'ROOM_UPDATE', room: payload });
+            }
+            if (firebaseReady && db) {
+                try {
+                    await setDoc(getRoomDocRef(payload.code), payload);
+                } catch (err) {
+                    console.error("Firestore write error:", err);
                 }
-            }, (err) => {
-                console.warn("Room snapshot error:", err);
-            });
+            }
         }
 
-        // Create Room
+        function handleIncomingRoomData(data) {
+            if (!data || !roomState.code || String(data.code) !== String(roomState.code)) return;
+            const prevStatus = roomState.status;
+            roomState = { ...roomState, ...data };
+            updateLobbyUI();
+
+            if (prevStatus !== 'playing' && roomState.status === 'playing') {
+                startArenaMatch(roomState.adminId === currentUserId);
+            } else if (prevStatus === 'playing' && roomState.status === 'lobby') {
+                isMatchActive = false;
+                showScreen('lobby');
+            }
+        }
+
+        if (localBus) {
+            localBus.onmessage = (ev) => {
+                const msg = ev.data;
+                if (!msg) return;
+                if (msg.type === 'ROOM_UPDATE') {
+                    localRoomCache[msg.room.code] = msg.room;
+                    handleIncomingRoomData(msg.room);
+                } else if (msg.type === 'QUERY_ROOM') {
+                    if (roomState.code && String(roomState.code) === String(msg.code)) {
+                        localBus.postMessage({ type: 'ROOM_UPDATE', room: roomState });
+                    }
+                } else if (msg.type === 'CLIENT_INPUT' && roomState.adminId === currentUserId && isMatchActive) {
+                    remoteInputs[msg.userId] = msg.input;
+                } else if (msg.type === 'LIVE_SNAPSHOT' && roomState.adminId !== currentUserId && isMatchActive) {
+                    applyAuthoritativeSnapshot(msg.snapshot);
+                }
+            };
+        }
+
+        let liveSnapUnsub = null;
+        let inputSnapUnsub = null;
+
+        function subscribeToRoom(code) {
+            if (roomUnsubscribe) { roomUnsubscribe(); roomUnsubscribe = null; }
+            if (liveSnapUnsub) { liveSnapUnsub(); liveSnapUnsub = null; }
+            if (inputSnapUnsub) { inputSnapUnsub(); inputSnapUnsub = null; }
+
+            if (!firebaseReady || !db) return;
+
+            roomUnsubscribe = onSnapshot(getRoomDocRef(code), (snap) => {
+                if (snap.exists()) {
+                    handleIncomingRoomData(snap.data());
+                }
+            }, (err) => console.warn("Room listen err:", err));
+
+            // Listen for live physics snapshots (for non-host clients)
+            liveSnapUnsub = onSnapshot(getLiveStateDocRef(code), (snap) => {
+                if (!snap.exists() || roomState.adminId === currentUserId || !isMatchActive) return;
+                const d = snap.data();
+                if (d && d.fighters) {
+                    applyAuthoritativeSnapshot(d);
+                }
+            }, () => {});
+
+            // Listen for remote client inputs (for host/admin)
+            inputSnapUnsub = onSnapshot(getInputsDocRef(code), (snap) => {
+                if (!snap.exists() || roomState.adminId !== currentUserId || !isMatchActive) return;
+                const d = snap.data();
+                if (d && d.inputs) {
+                    Object.assign(remoteInputs, d.inputs);
+                }
+            }, () => {});
+        }
+
+        // CREATE ROOM
         async function createNewRoom() {
             sfx.init();
             sfx.playHit(false);
@@ -783,79 +839,112 @@
                     isBot: false,
                     weaponId: WEAPONS[0].id
                 }],
-                winner: null
+                winnerId: null
             };
 
             document.getElementById('inputPlayerName').value = myProfile.name;
-            await syncRoomToCloud();
-            listenToRoom(code);
+            await writeRoomState();
+            subscribeToRoom(code);
             showScreen('lobby');
             updateLobbyUI();
             showToast(`Otaq yaradıldı! Kod: ${code}`, '👑');
         }
 
-        // Join Room
+        // JOIN EXISTING ROOM (FIXED!)
         async function joinExistingRoom() {
             sfx.init();
-            const code = document.getElementById('inputRoomCode').value.trim();
-            if (code.length < 4) {
-                showToast('Zəhmət olmasa düzgün otaq kodu daxil edin!', '⚠️');
+            const rawInput = document.getElementById('inputRoomCode').value.trim().replace(/\s+/g, '');
+            if (rawInput.length < 4) {
+                showToast('Zəhmət olmasa 5 rəqəmli otaq kodunu yazın!', '⚠️');
                 return;
             }
 
-            if (firebaseReady && db) {
-                try {
-                    const snap = await getDoc(getRoomDocRef(code));
-                    if (!snap.exists()) {
-                        showToast('Bu kodla otaq tapılmadı!', '❌');
-                        return;
-                    }
-                    const data = snap.data();
-                    if (data.status === 'playing') {
-                        showToast('Bu otaqda artıq döyüş gedir!', '⚔️');
-                        return;
-                    }
-                    const existingPlayers = data.players || [];
-                    const alreadyIn = existingPlayers.find(p => p.id === currentUserId);
-                    if (!alreadyIn && existingPlayers.length >= 5) {
-                        showToast('Otaq doludur! (Maksimum 5 nəfər)', '🚫');
-                        return;
-                    }
+            const btnJoin = document.getElementById('btnJoinRoom');
+            btnJoin.disabled = true;
+            btnJoin.textContent = 'QOŞULUR...';
 
-                    // Pick unused color
-                    const usedColors = existingPlayers.map(p => p.color);
-                    const availColor = COLORS.find(c => !usedColors.includes(c.hex)) || COLORS[existingPlayers.length % COLORS.length];
-                    myProfile.name = 'Oyunçu_' + (existingPlayers.length + 1);
-                    myProfile.color = availColor.hex;
-                    myProfile.skin = SKINS[existingPlayers.length % SKINS.length].id;
+            try {
+                let foundRoom = null;
 
-                    if (!alreadyIn) {
-                        existingPlayers.push({
-                            id: currentUserId,
-                            name: myProfile.name,
-                            color: myProfile.color,
-                            skin: myProfile.skin,
-                            isBot: false,
-                            weaponId: WEAPONS[0].id
-                        });
+                // 1. Check Firestore Cloud Database first
+                if (firebaseReady && db) {
+                    const snap = await getDoc(getRoomDocRef(rawInput));
+                    if (snap.exists()) {
+                        foundRoom = snap.data();
                     }
-
-                    roomState = { ...data, players: existingPlayers };
-                    document.getElementById('inputPlayerName').value = myProfile.name;
-                    await syncRoomToCloud();
-                    listenToRoom(code);
-                    showScreen('lobby');
-                    updateLobbyUI();
-                    showToast(`${code} nömrəli otağa qoşuldunuz!`, '✅');
-                } catch (e) {
-                    showToast('Otağa qoşularkən xəta baş verdi', '⚠️');
                 }
-            } else {
-                showToast('Otaq tapılmadı. Yeni otaq yaradın!', 'ℹ️');
+
+                // 2. Also check BroadcastChannel / Local Cache if same browser
+                if (!foundRoom) {
+                    if (localRoomCache[rawInput]) {
+                        foundRoom = localRoomCache[rawInput];
+                    } else if (localBus) {
+                        localBus.postMessage({ type: 'QUERY_ROOM', code: rawInput });
+                        await new Promise(r => setTimeout(r, 220));
+                        if (localRoomCache[rawInput]) {
+                            foundRoom = localRoomCache[rawInput];
+                        }
+                    }
+                }
+
+                if (!foundRoom) {
+                    showToast(`"${rawInput}" nömrəli otaq tapılmadı! Kodu yoxlayın.`, '❌');
+                    return;
+                }
+
+                if (foundRoom.status === 'playing') {
+                    showToast('Bu otaqda artıq döyüş gedir! Bitməsini gözləyin.', '⚔️');
+                    return;
+                }
+
+                const existingPlayers = Array.isArray(foundRoom.players) ? [...foundRoom.players] : [];
+                const alreadyIn = existingPlayers.find(p => p.id === currentUserId);
+
+                if (!alreadyIn && existingPlayers.length >= 5) {
+                    showToast('Otaq doludur! (Maksimum 5 nəfər)', '🚫');
+                    return;
+                }
+
+                // Assign unique unused color & default name
+                const usedColors = existingPlayers.map(p => p.color);
+                const availColor = COLORS.find(c => !usedColors.includes(c.hex)) || COLORS[existingPlayers.length % COLORS.length];
+                myProfile.name = 'Oyunçu_' + (existingPlayers.length + 1);
+                myProfile.color = availColor.hex;
+                myProfile.skin = SKINS[existingPlayers.length % SKINS.length].id;
+
+                if (!alreadyIn) {
+                    existingPlayers.push({
+                        id: currentUserId,
+                        name: myProfile.name,
+                        color: myProfile.color,
+                        skin: myProfile.skin,
+                        isBot: false,
+                        weaponId: WEAPONS[0].id
+                    });
+                }
+
+                roomState = {
+                    ...foundRoom,
+                    code: String(rawInput),
+                    players: existingPlayers
+                };
+
+                document.getElementById('inputPlayerName').value = myProfile.name;
+                await writeRoomState();
+                subscribeToRoom(rawInput);
+                showScreen('lobby');
+                updateLobbyUI();
+                sfx.playHit(false);
+                showToast(`${rawInput} nömrəli otağa uğurla qoşuldunuz!`, '✅');
+            } catch (err) {
+                console.error("Join room failed:", err);
+                showToast('Qoşulma zamanı xəta baş verdi. Yenidən yoxlayın.', '⚠️');
+            } finally {
+                btnJoin.disabled = false;
+                btnJoin.textContent = 'OTAĞA QOŞUL';
             }
         }
 
-        // Save Player Name / Color / Skin inside Room
         async function savePlayerCustomization() {
             const rawName = document.getElementById('inputPlayerName').value.trim();
             if (!rawName) {
@@ -871,11 +960,10 @@
             }
             sfx.playHit(false);
             updateLobbyUI();
-            await syncRoomToCloud();
-            showToast('Ad və skin yadda saxlanıldı!', '🎭');
+            await writeRoomState();
+            showToast('Ad, rəng və skin yadda saxlanıldı!', '🎭');
         }
 
-        // Admin Add Bot (Up to 5 total players)
         async function addBotToRoom() {
             if (roomState.adminId !== currentUserId) return;
             if (roomState.players.length >= 5) {
@@ -898,117 +986,171 @@
             });
             sfx.playHit(false);
             updateLobbyUI();
-            await syncRoomToCloud();
+            await writeRoomState();
         }
 
         async function removePlayerFromRoom(targetId) {
             if (roomState.adminId !== currentUserId || targetId === currentUserId) return;
             roomState.players = roomState.players.filter(p => p.id !== targetId);
             updateLobbyUI();
-            await syncRoomToCloud();
+            await writeRoomState();
         }
 
         // ============================================================================
-        // 5. LOBBY UI & STICKMAN RENDERING HELPER
+        // 5. ARTICULATED ELASTIC STICKMAN RENDERER (SPRING RAGDOLL JOINTS)
         // ============================================================================
-        function drawStickmanCharacter(ctx, x, y, scale, color, skin, angle, armAngle, walkPhase, weapon, isAttacking = false, frozen = false) {
+        function drawElasticStickman(ctx, f, scaleOverride = 1) {
             ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(scale, scale);
+            ctx.translate(f.x, f.y);
+            ctx.scale(scaleOverride, scaleOverride);
 
-            if (frozen) {
+            if (f.frozenTimer > 0) {
                 ctx.filter = 'hue-rotate(160deg) brightness(1.4)';
             }
 
-            const mainColor = color || '#22d3ee';
+            const mainColor = f.color || '#22d3ee';
+            // Elastic body tilt & squash-stretch based on velocity & angular wobble!
+            const bodyTilt = f.bodyAngle || 0;
+            const stretchY = 1 + Math.min(0.22, Math.abs(f.vy || 0) * 0.012);
+            const squashX = 1 / Math.sqrt(stretchY);
+
+            ctx.rotate(bodyTilt);
+            ctx.scale(squashX, stretchY);
+
             ctx.strokeStyle = mainColor;
             ctx.fillStyle = mainColor;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            // Legs animation
-            const legSwing = Math.sin(walkPhase) * 14;
+            // Elastic Knee & Foot Joints
+            const walk = f.walkPhase || 0;
+            const legSwing = Math.sin(walk) * 15;
+            const airLegSpread = Math.min(14, Math.max(-8, (f.vy || 0) * 1.1));
+
+            // Left Leg (Thigh + Calf spring bend)
+            const lKneeX = -7 - legSwing * 0.5 - airLegSpread * 0.4;
+            const lKneeY = 26 - Math.abs(Math.sin(walk)) * 4;
+            const lFootX = -10 - legSwing - airLegSpread * 0.7;
+            const lFootY = 42 - Math.max(0, Math.sin(walk)) * 6;
+
             ctx.lineWidth = 6.5;
-            // Left Leg
             ctx.beginPath();
             ctx.moveTo(0, 10);
-            ctx.lineTo(-8 - legSwing * 0.6, 26);
-            ctx.lineTo(-10 - legSwing, 42);
-            ctx.stroke();
-            // Right Leg
-            ctx.beginPath();
-            ctx.moveTo(0, 10);
-            ctx.lineTo(8 + legSwing * 0.6, 26);
-            ctx.lineTo(10 + legSwing, 42);
+            ctx.quadraticCurveTo(lKneeX - 2, lKneeY, lFootX, lFootY);
             ctx.stroke();
 
-            // Torso
+            // Right Leg (Thigh + Calf spring bend)
+            const rKneeX = 7 + legSwing * 0.5 + airLegSpread * 0.4;
+            const rKneeY = 26 - Math.abs(Math.cos(walk)) * 4;
+            const rFootX = 10 + legSwing + airLegSpread * 0.7;
+            const rFootY = 42 - Math.max(0, Math.cos(walk)) * 6;
+
+            ctx.beginPath();
+            ctx.moveTo(0, 10);
+            ctx.quadraticCurveTo(rKneeX + 2, rKneeY, rFootX, rFootY);
+            ctx.stroke();
+
+            // Elastic Curved Spine / Torso
+            const spineBend = (f.vx || 0) * 0.65;
             ctx.lineWidth = 7.5;
             ctx.beginPath();
-            ctx.moveTo(0, -16);
-            ctx.lineTo(0, 11);
+            ctx.moveTo(spineBend * 0.4, -17);
+            ctx.quadraticCurveTo(-spineBend * 0.5, -3, 0, 11);
             ctx.stroke();
 
-            // Skin Torso Accessories
-            if (skin === 'knight' || skin === 'cyber') {
-                ctx.strokeStyle = skin === 'cyber' ? '#38bdf8' : '#cbd5e1';
-                ctx.lineWidth = 9;
+            // Skin Torso Details
+            const skin = f.skin || 'classic';
+            if (skin === 'knight' || skin === 'cyber' || skin === 'astronaut') {
+                ctx.strokeStyle = skin === 'cyber' ? '#38bdf8' : '#e2e8f0';
+                ctx.lineWidth = 9.5;
                 ctx.beginPath();
-                ctx.moveTo(0, -12);
+                ctx.moveTo(spineBend * 0.3, -13);
                 ctx.lineTo(0, 4);
                 ctx.stroke();
                 ctx.strokeStyle = mainColor;
             } else if (skin === 'pharaoh') {
                 ctx.fillStyle = '#facc15';
                 ctx.beginPath();
-                ctx.moveTo(-7, 6);
-                ctx.lineTo(7, 6);
-                ctx.lineTo(9, 17);
-                ctx.lineTo(-9, 17);
+                ctx.moveTo(-7, 6); ctx.lineTo(7, 6); ctx.lineTo(9, 17); ctx.lineTo(-9, 17);
                 ctx.closePath();
                 ctx.fill();
             }
 
-            // Head
+            // Elastic Head Offset (Bobbing on neck spring)
+            const headX = spineBend * 0.65 + (f.headOffsetX || 0);
+            const headY = -28 + (f.headOffsetY || 0);
+
             ctx.fillStyle = mainColor;
             ctx.beginPath();
-            ctx.arc(0, -28, 11, 0, Math.PI * 2);
+            ctx.arc(headX, headY, 11, 0, Math.PI * 2);
             ctx.fill();
 
-            // Skin Headgear & Details
+            // Skin Headgear
+            const armAngle = f.armAngle || 0;
             const facing = Math.cos(armAngle) >= 0 ? 1 : -1;
+            ctx.save();
+            ctx.translate(headX, headY);
+            drawSkinHeadgear(ctx, skin, facing, walk);
+            ctx.restore();
+
+            // Elastic Free Arm (Flops dynamically with momentum!)
+            const freeHandX = -facing * 15 - (f.vx || 0) * 0.9;
+            const freeHandY = 3 - legSwing * 0.45 - (f.vy || 0) * 0.6;
+            ctx.strokeStyle = mainColor;
+            ctx.lineWidth = 5.5;
+            ctx.beginPath();
+            ctx.moveTo(spineBend * 0.3, -13);
+            ctx.quadraticCurveTo(-facing * 9, -6, freeHandX, freeHandY);
+            ctx.stroke();
+
+            // Weapon Arm & Weapon (360-degree elastic swing)
+            ctx.save();
+            ctx.translate(spineBend * 0.3, -13);
+            ctx.rotate(armAngle);
+
+            ctx.strokeStyle = mainColor;
+            ctx.lineWidth = 5.5;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(22, 0);
+            ctx.stroke();
+
+            if (f.weapon) {
+                ctx.translate(22, 0);
+                if (f.isAttacking) {
+                    ctx.shadowColor = f.weapon.accent;
+                    ctx.shadowBlur = 15;
+                }
+                drawWeaponGraphic(ctx, f.weapon);
+            }
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        function drawSkinHeadgear(ctx, skin, facing, walk) {
             if (skin === 'ninja') {
-                // Ninja headband + glowing eyes
                 ctx.fillStyle = '#0f172a';
-                ctx.fillRect(-10, -32, 20, 6);
+                ctx.fillRect(-10, -4, 20, 6);
                 ctx.fillStyle = '#ef4444';
-                ctx.fillRect(facing * 2, -31, 5, 3);
-                // Scarf tail
+                ctx.fillRect(facing * 2, -3, 5, 3);
                 ctx.strokeStyle = '#ef4444';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.moveTo(-facing * 9, -29);
-                ctx.lineTo(-facing * 20, -24 + Math.sin(walkPhase) * 4);
+                ctx.moveTo(-facing * 9, -1);
+                ctx.lineTo(-facing * 22, 4 + Math.sin(walk) * 5);
                 ctx.stroke();
             } else if (skin === 'crown') {
                 ctx.fillStyle = '#facc15';
                 ctx.beginPath();
-                ctx.moveTo(-9, -37);
-                ctx.lineTo(-9, -46);
-                ctx.lineTo(-4, -41);
-                ctx.lineTo(0, -48);
-                ctx.lineTo(4, -41);
-                ctx.lineTo(9, -46);
-                ctx.lineTo(9, -37);
+                ctx.moveTo(-9, -9); ctx.lineTo(-9, -18); ctx.lineTo(-4, -13);
+                ctx.lineTo(0, -20); ctx.lineTo(4, -13); ctx.lineTo(9, -18); ctx.lineTo(9, -9);
                 ctx.closePath();
                 ctx.fill();
             } else if (skin === 'pharaoh') {
                 ctx.fillStyle = '#1e293b';
                 ctx.beginPath();
-                ctx.moveTo(-13, -24);
-                ctx.lineTo(-9, -40);
-                ctx.lineTo(9, -40);
-                ctx.lineTo(13, -24);
+                ctx.moveTo(-13, 4); ctx.lineTo(-9, -12); ctx.lineTo(9, -12); ctx.lineTo(13, 4);
                 ctx.closePath();
                 ctx.fill();
                 ctx.strokeStyle = '#facc15';
@@ -1017,103 +1159,79 @@
             } else if (skin === 'samurai') {
                 ctx.fillStyle = '#dc2626';
                 ctx.beginPath();
-                ctx.arc(0, -31, 12, Math.PI, 0);
+                ctx.arc(0, -3, 12, Math.PI, 0);
                 ctx.fill();
                 ctx.strokeStyle = '#facc15';
                 ctx.lineWidth = 2.5;
                 ctx.beginPath();
-                ctx.moveTo(-7, -38);
-                ctx.lineTo(0, -45);
-                ctx.lineTo(7, -38);
+                ctx.moveTo(-7, -10); ctx.lineTo(0, -17); ctx.lineTo(7, -10);
                 ctx.stroke();
             } else if (skin === 'knight') {
                 ctx.fillStyle = '#94a3b8';
                 ctx.beginPath();
-                ctx.arc(0, -28, 12, 0, Math.PI * 2);
+                ctx.arc(0, 0, 12, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = '#0f172a';
-                ctx.fillRect(-7, -30, 14, 4);
-            } else if (skin === 'cyber') {
+                ctx.fillRect(-7, -2, 14, 4);
+            } else if (skin === 'cyber' || skin === 'hacker') {
                 ctx.fillStyle = '#0f172a';
-                ctx.fillRect(-9, -32, 18, 6);
-                ctx.fillStyle = '#22d3ee';
-                ctx.fillRect(-6, -30, 12, 2.5);
+                ctx.fillRect(-9, -4, 18, 6);
+                ctx.fillStyle = skin === 'hacker' ? '#4ade80' : '#22d3ee';
+                ctx.fillRect(-6, -2, 12, 2.5);
             } else if (skin === 'demon') {
                 ctx.fillStyle = '#dc2626';
                 ctx.beginPath();
-                ctx.moveTo(-8, -36); ctx.lineTo(-13, -47); ctx.lineTo(-3, -38);
-                ctx.moveTo(8, -36); ctx.lineTo(13, -47); ctx.lineTo(3, -38);
+                ctx.moveTo(-8, -8); ctx.lineTo(-13, -19); ctx.lineTo(-3, -10);
+                ctx.moveTo(8, -8); ctx.lineTo(13, -19); ctx.lineTo(3, -10);
                 ctx.fill();
             } else if (skin === 'pirate') {
                 ctx.fillStyle = '#0f172a';
                 ctx.beginPath();
-                ctx.moveTo(-14, -35); ctx.lineTo(0, -46); ctx.lineTo(14, -35);
+                ctx.moveTo(-14, -7); ctx.lineTo(0, -18); ctx.lineTo(14, -7);
                 ctx.closePath();
                 ctx.fill();
             } else if (skin === 'viking') {
                 ctx.fillStyle = '#cbd5e1';
                 ctx.beginPath();
-                ctx.arc(0, -30, 11.5, Math.PI, 0);
+                ctx.arc(0, -2, 11.5, Math.PI, 0);
                 ctx.fill();
                 ctx.strokeStyle = '#fef08a';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.moveTo(-10, -33); ctx.quadraticCurveTo(-18, -38, -14, -46);
-                ctx.moveTo(10, -33); ctx.quadraticCurveTo(18, -38, 14, -46);
+                ctx.moveTo(-10, -5); ctx.quadraticCurveTo(-18, -10, -14, -18);
+                ctx.moveTo(10, -5); ctx.quadraticCurveTo(18, -10, 14, -18);
                 ctx.stroke();
             } else if (skin === 'wizard') {
                 ctx.fillStyle = '#6366f1';
                 ctx.beginPath();
-                ctx.moveTo(-14, -35); ctx.lineTo(0, -54); ctx.lineTo(14, -35);
+                ctx.moveTo(-14, -7); ctx.lineTo(0, -26); ctx.lineTo(14, -7);
                 ctx.closePath();
                 ctx.fill();
             } else if (skin === 'panda') {
                 ctx.fillStyle = '#0f172a';
                 ctx.beginPath();
-                ctx.arc(-8, -38, 4.5, 0, Math.PI * 2);
-                ctx.arc(8, -38, 4.5, 0, Math.PI * 2);
+                ctx.arc(-8, -10, 4.5, 0, Math.PI * 2);
+                ctx.arc(8, -10, 4.5, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (skin === 'astronaut') {
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.arc(0, 0, 14, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+                ctx.fill();
+            } else if (skin === 'reaper') {
+                ctx.fillStyle = '#090d16';
+                ctx.beginPath();
+                ctx.arc(0, 0, 13, Math.PI * 0.85, Math.PI * 2.15);
                 ctx.fill();
             }
-
-            // Off-hand Arm (Balance)
-            ctx.strokeStyle = mainColor;
-            ctx.lineWidth = 5.5;
-            ctx.beginPath();
-            ctx.moveTo(0, -12);
-            ctx.lineTo(-facing * 14, 2 - legSwing * 0.4);
-            ctx.stroke();
-
-            // Weapon Arm & Weapon Rendering
-            ctx.save();
-            ctx.translate(0, -12);
-            ctx.rotate(armAngle);
-
-            // Arm
-            ctx.strokeStyle = mainColor;
-            ctx.lineWidth = 5.5;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(22, 0);
-            ctx.stroke();
-
-            // Draw Weapon in Hand
-            if (weapon) {
-                ctx.translate(22, 0);
-                if (isAttacking) {
-                    ctx.shadowColor = weapon.accent;
-                    ctx.shadowBlur = 14;
-                }
-                drawWeaponGraphic(ctx, weapon);
-            }
-            ctx.restore();
-
-            ctx.restore();
         }
 
         function drawWeaponGraphic(ctx, w) {
             const len = w.len * 0.85;
             if (w.id === 'guitar') {
-                // Rock Guitar
                 ctx.fillStyle = w.color;
                 ctx.beginPath();
                 ctx.ellipse(14, 0, 12, 9, 0, 0, Math.PI * 2);
@@ -1162,13 +1280,11 @@
                 ctx.arc(36, 0, 14, 0, Math.PI * 2);
                 ctx.fill();
             } else if (w.type === 'ranged') {
-                // Gun / Bow / Staff style
                 ctx.fillStyle = w.color;
                 ctx.fillRect(0, -5, len * 0.75, 10);
                 ctx.fillStyle = w.accent;
                 ctx.fillRect(len * 0.55, -3, len * 0.25, 6);
             } else {
-                // Blade / Spear / Scythe
                 ctx.strokeStyle = '#78350f';
                 ctx.lineWidth = 5;
                 ctx.beginPath();
@@ -1194,20 +1310,27 @@
         function renderPreviewStickman() {
             const c = document.getElementById('previewCanvas');
             if (!c) return;
-            const ctx = c.getContext('2d');
-            ctx.clearRect(0, 0, c.width, c.height);
-            drawStickmanCharacter(ctx, 55, 78, 1.15, myProfile.color, myProfile.skin, 0, -0.3, 0.4, WEAPONS[0], false);
+            const pctx = c.getContext('2d');
+            pctx.clearRect(0, 0, c.width, c.height);
+            drawElasticStickman(pctx, {
+                x: 55, y: 82,
+                color: myProfile.color,
+                skin: myProfile.skin,
+                armAngle: -0.35,
+                walkPhase: 0.45,
+                bodyAngle: 0.05,
+                weapon: WEAPONS[0]
+            }, 1.15);
             const sk = SKINS.find(s => s.id === myProfile.skin);
             document.getElementById('previewSkinLabel').textContent = sk ? sk.name : 'Klassik';
         }
 
         function initLobbySelectors() {
-            // Color Palette
             const paletteEl = document.getElementById('colorPalette');
             paletteEl.innerHTML = '';
             COLORS.forEach(c => {
                 const btn = document.createElement('button');
-                btn.className = 'w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer';
+                btn.className = 'w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer';
                 btn.style.backgroundColor = c.hex;
                 btn.style.borderColor = myProfile.color === c.hex ? '#ffffff' : 'transparent';
                 btn.onclick = () => {
@@ -1218,7 +1341,6 @@
                 paletteEl.appendChild(btn);
             });
 
-            // Skin Grid
             const skinEl = document.getElementById('skinGrid');
             skinEl.innerHTML = '';
             SKINS.forEach(s => {
@@ -1234,14 +1356,13 @@
                 skinEl.appendChild(btn);
             });
 
-            // Map Selector Grid
             const mapEl = document.getElementById('mapSelectorGrid');
             mapEl.innerHTML = '';
             MAPS.forEach(m => {
                 const active = roomState.mapId === m.id;
                 const btn = document.createElement('button');
                 btn.className = `px-2.5 py-2 rounded-xl text-xs font-gaming font-bold border text-left cursor-pointer ${active ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'}`;
-                btn.innerHTML = `<div>${m.name}</div><div class="text-[10px] opacity-70">${m.hazard}</div>`;
+                btn.innerHTML = `<div>${m.name}</div><div class="text-[10px] opacity-70 truncate">${m.desc}</div>`;
                 btn.onclick = async () => {
                     if (roomState.adminId !== currentUserId) {
                         showToast('Yalnız otaq admini xəritəni dəyişə bilər!', '🔒');
@@ -1249,7 +1370,7 @@
                     }
                     roomState.mapId = m.id;
                     initLobbySelectors();
-                    await syncRoomToCloud();
+                    await writeRoomState();
                 };
                 mapEl.appendChild(btn);
             });
@@ -1288,6 +1409,7 @@
                                 <span>${p.name}</span>
                                 ${p.id === roomState.adminId ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">ADMIN</span>' : ''}
                                 ${p.isBot ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">BOT</span>' : ''}
+                                ${p.id === currentUserId ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">SƏN</span>' : ''}
                             </div>
                             <div class="text-[11px] text-slate-400">Skin: ${skinObj ? skinObj.name : 'Klassik'}</div>
                         </div>
@@ -1322,14 +1444,14 @@
         }
 
         // ============================================================================
-        // 6. PHYSICS FIGHTING ENGINE (PC WASD + TOUCHPAD + MOBILE JOYSTICK)
+        // 6. AUTHENTIC ELASTIC RAGDOLL PHYSICS & MULTIPLAYER SYNCHRONIZATION
         // ============================================================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Virtual Arena Logical Coordinates (Camera scales cleanly to any device)
         const WORLD_W = 1040;
         const WORLD_H = 680;
+        const FLOOR_Y = WORLD_H - 42; // Solid ground floor (Asphalt / Stone / Trampoline / Lava)
 
         let fighters = [];
         let projectiles = [];
@@ -1340,33 +1462,49 @@
         let isMatchActive = false;
         let bgDemoMode = true;
         let showTouchpadOnPC = true;
+        let remoteInputs = {};
 
-        // Input States (PC Keyboard + Virtual Touchpad Joystick)
         const keys = {};
         const joyState = { active: false, dx: 0, dy: 0, angle: 0 };
+        const mouseState = { x: WORLD_W / 2, y: WORLD_H / 2, active: false };
 
         window.addEventListener('keydown', (e) => {
             keys[e.code] = true;
             if ((e.code === 'Space' || e.code === 'KeyE' || e.code === 'ShiftLeft') && isMatchActive) {
-                triggerPlayerSpecial();
+                triggerLocalSpecialInput();
             }
         });
         window.addEventListener('keyup', (e) => {
             keys[e.code] = false;
         });
 
-        // Virtual Analog Touchpad / Joystick (Works with BOTH Mouse Drag on PC & Touch on Mobile!)
+        // Mouse aim & left click special on PC
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scale = Math.min(canvas.width / WORLD_W, canvas.height / WORLD_H);
+            const offsetX = (canvas.width - WORLD_W * scale) / 2;
+            const offsetY = (canvas.height - WORLD_H * scale) / 2;
+            mouseState.x = (e.clientX - rect.left - offsetX) / scale;
+            mouseState.y = (e.clientY - rect.top - offsetY) / scale;
+            mouseState.active = true;
+        });
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && isMatchActive && !joyState.active) {
+                triggerLocalSpecialInput();
+            }
+        });
+
+        // Virtual Analog Touchpad / Joystick (Works with BOTH Mouse Drag & Touch)
         const joyZone = document.getElementById('joystickZone');
         const joyKnob = document.getElementById('joystickKnob');
-        let joyCenter = { x: 0, y: 0 };
 
         function updateJoystickFromClientXY(clientX, clientY) {
             const rect = joyZone.getBoundingClientRect();
-            joyCenter.x = rect.left + rect.width / 2;
-            joyCenter.y = rect.top + rect.height / 2;
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
             const maxR = rect.width * 0.38;
-            let vx = clientX - joyCenter.x;
-            let vy = clientY - joyCenter.y;
+            let vx = clientX - cx;
+            let vy = clientY - cy;
             const dist = Math.hypot(vx, vy);
             if (dist > maxR) {
                 vx = (vx / dist) * maxR;
@@ -1387,19 +1525,15 @@
             joyKnob.style.transform = `translate(0px, 0px)`;
         }
 
-        // Touch Events for Mobile
         joyZone.addEventListener('touchstart', (e) => {
             e.preventDefault();
             joyState.active = true;
-            const t = e.changedTouches[0];
-            updateJoystickFromClientXY(t.clientX, t.clientY);
+            updateJoystickFromClientXY(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
         }, { passive: false });
 
         joyZone.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            if (!joyState.active) return;
-            const t = e.changedTouches[0];
-            updateJoystickFromClientXY(t.clientX, t.clientY);
+            if (joyState.active) updateJoystickFromClientXY(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
         }, { passive: false });
 
         joyZone.addEventListener('touchend', (e) => {
@@ -1407,90 +1541,166 @@
             resetJoystick();
         });
 
-        // Mouse Events for PC Touchpad/Mouse Drag on Virtual Joystick
         joyZone.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
             joyState.active = true;
             updateJoystickFromClientXY(e.clientX, e.clientY);
         });
         window.addEventListener('mousemove', (e) => {
-            if (joyState.active) {
-                updateJoystickFromClientXY(e.clientX, e.clientY);
-            }
+            if (joyState.active) updateJoystickFromClientXY(e.clientX, e.clientY);
         });
         window.addEventListener('mouseup', () => {
             if (joyState.active) resetJoystick();
         });
 
-        // Touch Jump & Special Buttons
+        let pendingJump = false;
+        let pendingSpecial = false;
+
         document.getElementById('btnTouchJump').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            const me = fighters.find(f => f.id === currentUserId);
-            if (me && me.alive && me.jumpsLeft > 0) {
-                me.vy = -12.5;
-                me.jumpsLeft--;
-                spawnParticles(me.x, me.y + 40, me.color, 6);
-            }
+            pendingJump = true;
         });
 
         document.getElementById('btnTouchSpecial').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            triggerPlayerSpecial();
+            triggerLocalSpecialInput();
         });
 
-        function triggerPlayerSpecial() {
+        function triggerLocalSpecialInput() {
+            pendingSpecial = true;
             const me = fighters.find(f => f.id === currentUserId);
-            if (me && me.alive) {
+            if (me && me.alive && roomState.adminId === currentUserId) {
                 activateWeaponSpecial(me);
             }
         }
 
+        // Send Client Inputs to Host in Multiplayer
+        function getLocalInputVector() {
+            let moveX = 0;
+            let jump = pendingJump;
+            let special = pendingSpecial;
+            pendingJump = false;
+            pendingSpecial = false;
+
+            if (keys['KeyA'] || keys['ArrowLeft']) moveX -= 1;
+            if (keys['KeyD'] || keys['ArrowRight']) moveX += 1;
+            if (keys['KeyW'] || keys['ArrowUp']) jump = true;
+
+            const me = fighters.find(f => f.id === currentUserId);
+            let aimAngle = me ? me.armAngle : 0;
+
+            if (joyState.active) {
+                moveX = joyState.dx;
+                aimAngle = joyState.angle;
+                if (joyState.dy < -0.68) jump = true;
+            } else if (mouseState.active && me) {
+                aimAngle = Math.atan2(mouseState.y - (me.y - 12), mouseState.x - me.x);
+            } else if (moveX !== 0) {
+                aimAngle = moveX > 0 ? -0.15 : Math.PI + 0.15;
+            }
+
+            return {
+                moveX,
+                jump,
+                special,
+                aimAngle,
+                firing: joyState.active || Math.abs(moveX) > 0.1 || keys['KeyJ'] || keys['Enter']
+            };
+        }
+
+        async function broadcastClientInputIfNeeded(inp) {
+            if (!isMatchActive || roomState.adminId === currentUserId || !roomState.code) return;
+            const now = Date.now();
+            if (now - lastSentInputTs < 75 && !inp.special && !inp.jump) return;
+            lastSentInputTs = now;
+
+            if (localBus) {
+                localBus.postMessage({ type: 'CLIENT_INPUT', userId: currentUserId, input: inp });
+            }
+            if (firebaseReady && db) {
+                try {
+                    await setDoc(getInputsDocRef(roomState.code), {
+                        inputs: { [currentUserId]: { ...inp, ts: now } }
+                    }, { merge: true });
+                } catch (_) {}
+            }
+        }
+
+        function applyAuthoritativeSnapshot(snap) {
+            if (!snap || !Array.isArray(snap.fighters)) return;
+            snap.fighters.forEach(sf => {
+                const localF = fighters.find(f => f.id === sf.id);
+                if (!localF) return;
+                // Smoothly interpolate position while keeping local player super responsive
+                const blend = sf.id === currentUserId ? 0.35 : 0.55;
+                localF.x += (sf.x - localF.x) * blend;
+                localF.y += (sf.y - localF.y) * blend;
+                localF.vx = sf.vx;
+                localF.vy = sf.vy;
+                localF.hp = sf.hp;
+                localF.alive = sf.alive;
+                localF.armAngle = sf.armAngle;
+                localF.bodyAngle = sf.bodyAngle || 0;
+                localF.specialCooldown = sf.specialCooldown;
+                localF.frozenTimer = sf.frozenTimer || 0;
+                localF.shieldTimer = sf.shieldTimer || 0;
+            });
+            updateAliveDotsHUD();
+            if (snap.winnerId && isMatchActive) {
+                isMatchActive = false;
+                const champ = fighters.find(f => f.id === snap.winnerId) || fighters[0];
+                triggerFirstPlaceJumpscareVictory(champ);
+            }
+        }
+
         // ============================================================================
-        // 7. MATCH INITIALIZATION & RANDOM WEAPON ASSIGNMENT
+        // 7. MATCH INITIALIZATION (ADMIN ASSIGNS RANDOM WEAPONS TO ALL)
         // ============================================================================
         async function adminStartGame() {
             if (roomState.adminId !== currentUserId) return;
             sfx.init();
 
-            // If solo in room, auto-add 1 AI rival so user can immediately fight!
+            // If solo in room, auto-add 1 AI bot so user can play right away
             if (roomState.players.length < 2) {
                 await addBotToRoom();
             }
 
-            // Assign RANDOM weapons from 58+ arsenal to every player!
             const shuffled = [...WEAPONS].sort(() => Math.random() - 0.5);
             roomState.players.forEach((p, idx) => {
                 p.weaponId = shuffled[idx % shuffled.length].id;
             });
             roomState.status = 'playing';
-            roomState.winner = null;
+            roomState.winnerId = null;
 
-            await syncRoomToCloud();
+            await writeRoomState();
             startArenaMatch(true);
         }
 
-        function startArenaMatch(isHostTrigger) {
+        function startArenaMatch(isHost) {
             bgDemoMode = false;
             isMatchActive = true;
             projectiles = [];
             particles = [];
             floatingTexts = [];
+            remoteInputs = {};
             screenShake = 0;
 
             const currentMap = MAPS.find(m => m.id === roomState.mapId) || MAPS[0];
             const spawnPoints = [
-                { x: 240, y: 200 },
-                { x: 780, y: 200 },
-                { x: 510, y: 160 },
-                { x: 360, y: 180 },
-                { x: 660, y: 180 }
+                { x: 240, y: 240 },
+                { x: 780, y: 240 },
+                { x: 510, y: 200 },
+                { x: 350, y: 220 },
+                { x: 670, y: 220 }
             ];
 
+            // 1000 HP + Elastic Spring Ragdoll Body Properties!
             fighters = roomState.players.map((p, idx) => {
                 const wpn = WEAPONS.find(w => w.id === p.weaponId) || WEAPONS[idx % WEAPONS.length];
                 const sp = spawnPoints[idx % spawnPoints.length];
                 return {
                     id: p.id,
-                    name: p.name, // STRICTLY HIDDEN DURING COMBAT!
+                    name: p.name, // STRICTLY HIDDEN DURING FIGHT!
                     color: p.color,
                     skin: p.skin,
                     isBot: p.isBot,
@@ -1499,23 +1709,52 @@
                     y: sp.y,
                     vx: 0,
                     vy: 0,
-                    hp: 100,
-                    maxHp: 100,
+                    hp: 1000,
+                    maxHp: 1000,
                     alive: true,
                     armAngle: idx % 2 === 0 ? 0 : Math.PI,
                     armVel: 0,
+                    bodyAngle: 0,
+                    bodyAngVel: 0,
+                    headOffsetX: 0,
+                    headOffsetY: 0,
                     walkPhase: 0,
                     jumpsLeft: 2,
                     attackCooldown: 0,
                     specialCooldown: 0,
-                    maxSpecialCooldown: 160,
+                    maxSpecialCooldown: 150,
                     frozenTimer: 0,
                     shieldTimer: 0,
                     hitFlash: 0,
-                    botThinkTimer: 0,
-                    botTargetDir: 1
+                    isAttacking: false
                 };
             });
+
+            // Host runs periodic 12Hz Firestore + instant BroadcastChannel state broadcast
+            clearInterval(stateSyncTimer);
+            if (isHost && roomState.players.some(p => !p.isBot && p.id !== currentUserId)) {
+                stateSyncTimer = setInterval(async () => {
+                    if (!isMatchActive || !roomState.code) return;
+                    const snap = {
+                        fighters: fighters.map(f => ({
+                            id: f.id, x: Math.round(f.x), y: Math.round(f.y),
+                            vx: Number(f.vx.toFixed(1)), vy: Number(f.vy.toFixed(1)),
+                            hp: Math.round(f.hp), alive: f.alive,
+                            armAngle: Number(f.armAngle.toFixed(2)),
+                            bodyAngle: Number(f.bodyAngle.toFixed(2)),
+                            specialCooldown: f.specialCooldown,
+                            frozenTimer: f.frozenTimer,
+                            shieldTimer: f.shieldTimer
+                        })),
+                        winnerId: roomState.winnerId || null,
+                        ts: Date.now()
+                    };
+                    if (localBus) localBus.postMessage({ type: 'LIVE_SNAPSHOT', snapshot: snap });
+                    if (firebaseReady && db) {
+                        try { await setDoc(getLiveStateDocRef(roomState.code), snap); } catch (_) {}
+                    }
+                }, 90);
+            }
 
             const me = fighters.find(f => f.id === currentUserId);
             document.getElementById('hudMapName').textContent = currentMap.name;
@@ -1529,7 +1768,6 @@
         function updateAliveDotsHUD() {
             const container = document.getElementById('hudAliveDots');
             container.innerHTML = '';
-            // Only show colored circles (NO NAMES!)
             fighters.forEach(f => {
                 const dot = document.createElement('div');
                 dot.className = `w-4 h-4 rounded-full border-2 transition-all ${f.alive ? 'scale-100 opacity-100 border-white' : 'scale-75 opacity-25 border-slate-600'}`;
@@ -1539,7 +1777,7 @@
         }
 
         // ============================================================================
-        // 8. WEAPON MECHANICS & SPECIAL ABILITIES
+        // 8. WEAPON MECHANICS, ELASTIC COLLISIONS & PARTICLES
         // ============================================================================
         function spawnParticles(x, y, color, count = 10, speed = 5) {
             for (let i = 0; i < count; i++) {
@@ -1558,7 +1796,7 @@
 
         function spawnDamageNumber(x, y, dmg, color = '#facc15') {
             floatingTexts.push({
-                x, y: y - 35,
+                x, y: y - 38,
                 text: `-${Math.round(dmg)}`,
                 color,
                 life: 36
@@ -1569,7 +1807,7 @@
             const w = owner.weapon;
             const muzzleX = owner.x + Math.cos(angle) * (w.len * 0.85 + 22);
             const muzzleY = (owner.y - 12) + Math.sin(angle) * (w.len * 0.85 + 22);
-            const speed = (w.proj === 'sniper' || w.proj === 'laser' ? 19 : 12.5) * speedMult;
+            const speed = (w.proj === 'sniper' || w.proj === 'laser' ? 19 : 13) * speedMult;
 
             sfx.playShoot(w.id === 'guitar' ? 'guitar' : (w.proj === 'rocket' || w.proj === 'bomb' ? 'boom' : 'laser'));
 
@@ -1592,6 +1830,9 @@
         function activateWeaponSpecial(f) {
             if (f.specialCooldown > 0 || f.frozenTimer > 0) return;
             f.specialCooldown = f.maxSpecialCooldown;
+            f.isAttacking = true;
+            setTimeout(() => { f.isAttacking = false; }, 350);
+
             const sp = f.weapon.special;
             const dirX = Math.cos(f.armAngle);
             const dirY = Math.sin(f.armAngle);
@@ -1599,51 +1840,52 @@
             spawnParticles(f.x, f.y - 10, f.weapon.accent, 14, 6);
 
             if (sp === 'dash' || sp === 'homerun') {
-                f.vx = dirX * 18;
-                f.vy = dirY * 12 - 3;
-                f.armVel = 0.45;
+                f.vx = dirX * 19;
+                f.vy = dirY * 12 - 3.5;
+                f.armVel = 0.5;
+                f.bodyAngVel = dirX * 0.25;
                 sfx.playHit(true);
             } else if (sp === 'slam' || sp === 'shockwave') {
                 f.vy = 14;
                 screenShake = 10;
                 sfx.playShoot('boom');
                 fighters.forEach(other => {
-                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 165) {
-                        applyHitToFighter(f, other, f.weapon.dmg * 1.15, f.weapon.kb * 1.35);
+                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 175) {
+                        applyHitToFighter(f, other, f.weapon.dmg * 1.3, f.weapon.kb * 1.3);
                     }
                 });
             } else if (sp === 'spin') {
-                f.armVel = 0.65;
-                f.shieldTimer = 45;
+                f.armVel = 0.7;
+                f.shieldTimer = 48;
                 sfx.playHit(false);
             } else if (sp === 'throw_return') {
-                fireWeaponProjectile(f, f.armAngle, 1.15, 1.2);
+                fireWeaponProjectile(f, f.armAngle, 1.2, 1.25);
             } else if (sp === 'multishot' || sp === 'shard_burst') {
                 for (let offset of [-0.24, 0, 0.24]) {
-                    fireWeaponProjectile(f, f.armAngle + offset, 1, 0.8);
+                    fireWeaponProjectile(f, f.armAngle + offset, 1, 0.85);
                 }
             } else if (sp === 'rapid') {
                 for (let i = 0; i < 4; i++) {
                     setTimeout(() => {
-                        if (f.alive) fireWeaponProjectile(f, f.armAngle + (Math.random() - 0.5) * 0.14, 1.1, 0.7);
+                        if (f.alive) fireWeaponProjectile(f, f.armAngle + (Math.random() - 0.5) * 0.14, 1.1, 0.75);
                     }, i * 65);
                 }
             } else if (sp === 'pull' || sp === 'blackhole') {
                 sfx.playShoot('laser');
                 fighters.forEach(other => {
-                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 340) {
+                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 350) {
                         const pullAng = Math.atan2(f.y - other.y, f.x - other.x);
-                        other.vx = Math.cos(pullAng) * 15;
+                        other.vx = Math.cos(pullAng) * 16;
                         other.vy = Math.sin(pullAng) * 12 - 4;
-                        applyHitToFighter(f, other, f.weapon.dmg * 0.7, 3);
+                        applyHitToFighter(f, other, f.weapon.dmg * 0.8, 3);
                     }
                 });
             } else if (sp === 'force_push') {
                 sfx.playShoot('boom');
                 fighters.forEach(other => {
-                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 250) {
+                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 260) {
                         const pushAng = Math.atan2(other.y - f.y, other.x - f.x);
-                        other.vx = Math.cos(pushAng) * 19;
+                        other.vx = Math.cos(pushAng) * 20;
                         other.vy = Math.sin(pushAng) * 14 - 5;
                     }
                 });
@@ -1651,7 +1893,7 @@
                 const target = fighters.find(o => o.id !== f.id && o.alive);
                 if (target) {
                     spawnParticles(f.x, f.y, '#a855f7', 15);
-                    f.x = target.x - Math.cos(target.armAngle) * 55;
+                    f.x = Math.max(50, Math.min(WORLD_W - 50, target.x - Math.cos(target.armAngle) * 58));
                     f.y = target.y - 10;
                     f.armAngle = Math.atan2(target.y - f.y, target.x - f.x);
                     spawnParticles(f.x, f.y, '#a855f7', 15);
@@ -1660,7 +1902,7 @@
             } else if (sp === 'freeze') {
                 sfx.playShoot('laser');
                 fighters.forEach(other => {
-                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 280) {
+                    if (other.id !== f.id && other.alive && Math.hypot(other.x - f.x, other.y - f.y) < 290) {
                         other.frozenTimer = 110;
                         spawnParticles(other.x, other.y, '#38bdf8', 18);
                     }
@@ -1671,15 +1913,15 @@
                     sfx.playShoot('boom');
                     screenShake = 12;
                     spawnParticles(target.x, target.y - 20, '#facc15', 25, 8);
-                    applyHitToFighter(f, target, f.weapon.dmg * 1.3, f.weapon.kb * 1.2);
+                    applyHitToFighter(f, target, f.weapon.dmg * 1.4, f.weapon.kb * 1.2);
                 }
             } else if (sp === 'float_shield' || sp === 'reflect') {
                 f.shieldTimer = 95;
-                f.vy = -6;
+                f.vy = -6.5;
                 sfx.playHit(false);
             } else if (sp === 'music_wave') {
                 for (let a = 0; a < Math.PI * 2; a += Math.PI / 3) {
-                    fireWeaponProjectile(f, a, 0.95, 0.85);
+                    fireWeaponProjectile(f, a, 0.95, 0.9);
                 }
             } else {
                 fireWeaponProjectile(f, f.armAngle, 1.3, 1.35);
@@ -1696,11 +1938,16 @@
             victim.hp = Math.max(0, victim.hp - dmg);
             victim.hitFlash = 14;
             const ang = Math.atan2(victim.y - attacker.y - 10, victim.x - attacker.x);
-            victim.vx = Math.cos(ang) * knockback * 1.15;
+            victim.vx = Math.cos(ang) * knockback * 1.1;
             victim.vy = Math.sin(ang) * knockback - 5.5;
-            screenShake = Math.min(14, knockback * 0.7);
+            // Elastic ragdoll wobble impulse!
+            victim.bodyAngVel = Math.cos(ang) * 0.24;
+            victim.headOffsetX = Math.cos(ang) * 7;
+            victim.headOffsetY = Math.sin(ang) * 7;
+
+            screenShake = Math.min(13, knockback * 0.65);
             hitStopFrames = 2;
-            sfx.playHit(dmg >= 20);
+            sfx.playHit(dmg >= 65);
             spawnParticles(victim.x, victim.y - 12, victim.color, 14, 6);
             spawnDamageNumber(victim.x, victim.y, dmg, attacker.color);
 
@@ -1715,7 +1962,7 @@
             f.hp = 0;
             sfx.playKO();
             screenShake = 16;
-            spawnParticles(f.x, f.y, f.color, 35, 9);
+            spawnParticles(f.x, f.y, f.color, 38, 9);
             updateAliveDotsHUD();
             checkVictoryCondition();
         }
@@ -1725,7 +1972,12 @@
             const aliveList = fighters.filter(f => f.alive);
             if (aliveList.length <= 1) {
                 isMatchActive = false;
+                clearInterval(stateSyncTimer);
                 const champ = aliveList[0] || fighters[0];
+                roomState.winnerId = champ.id;
+                if (roomState.adminId === currentUserId) {
+                    await writeRoomState();
+                }
                 setTimeout(() => {
                     triggerFirstPlaceJumpscareVictory(champ);
                 }, 550);
@@ -1738,13 +1990,12 @@
         function triggerFirstPlaceJumpscareVictory(champ) {
             sfx.playJumpscareVictory();
             const skinObj = SKINS.find(s => s.id === champ.skin);
-            // NOW WE REVEAL THE WINNER'S HIDDEN NAME!
+            // REVEAL THE WINNER'S SECRET NICKNAME ONLY NOW!
             document.getElementById('winnerNameReveal').textContent = champ.name;
             document.getElementById('winnerNameReveal').style.color = champ.color;
             document.getElementById('winnerSkinBadge').textContent = `Skin: ${skinObj ? skinObj.name : 'Klassik'}`;
             document.getElementById('winnerWeaponBadge').textContent = `Silah: ${champ.weapon.name}`;
 
-            // Re-trigger Jumpscare CSS Animation cleanly
             const card = document.getElementById('jumpscareCard');
             card.classList.remove('jumpscare-medal');
             void card.offsetWidth;
@@ -1754,7 +2005,7 @@
         }
 
         // ============================================================================
-        // 10. MAIN GAME PHYSICS LOOP & RENDERER
+        // 10. MAIN PHYSICS LOOP & RENDERER (ELASTIC FLOOR BOUNCE, NO INSTANT FALL KO!)
         // ============================================================================
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -1769,9 +2020,12 @@
                 return;
             }
 
-            const currentMap = MAPS.find(m => m.id === (bgDemoMode ? 'anubis' : roomState.mapId)) || MAPS[0];
+            const currentMap = MAPS.find(m => m.id === (bgDemoMode ? 'trucks' : roomState.mapId)) || MAPS[0];
+            const localInp = (!bgDemoMode && isMatchActive) ? getLocalInputVector() : null;
+            if (localInp) {
+                broadcastClientInputIfNeeded(localInp);
+            }
 
-            // Update Fighters
             fighters.forEach(f => {
                 if (!f.alive) return;
 
@@ -1784,29 +2038,34 @@
                     return;
                 }
 
-                // Controls: Human Player (WASD + Touchpad Joystick) vs AI Bot
+                // Elastic spring recovery for body angle & head bob
+                f.bodyAngle += f.bodyAngVel;
+                f.bodyAngVel = f.bodyAngVel * 0.84 - f.bodyAngle * 0.16;
+                f.headOffsetX *= 0.82;
+                f.headOffsetY *= 0.82;
+
                 let moveX = 0;
                 let jumpPressed = false;
                 let targetAimAngle = f.armAngle;
 
-                if (!f.isBot && f.id === currentUserId && !bgDemoMode) {
-                    // Keyboard WASD / Arrow Keys
-                    if (keys['KeyA'] || keys['ArrowLeft']) moveX -= 1;
-                    if (keys['KeyD'] || keys['ArrowRight']) moveX += 1;
-                    if (keys['KeyW'] || keys['ArrowUp']) jumpPressed = true;
-
-                    // Virtual Touchpad / Analog Joystick (Works on BOTH PC & Mobile!)
-                    if (joyState.active) {
-                        moveX = joyState.dx;
-                        targetAimAngle = joyState.angle;
-                        if (joyState.dy < -0.68 && f.vy >= -2) {
-                            jumpPressed = true;
-                        }
-                    } else if (moveX !== 0) {
-                        targetAimAngle = moveX > 0 ? -0.15 : Math.PI + 0.15;
+                if (!f.isBot && f.id === currentUserId && localInp) {
+                    moveX = localInp.moveX;
+                    jumpPressed = localInp.jump;
+                    targetAimAngle = localInp.aimAngle;
+                    if (localInp.special) {
+                        activateWeaponSpecial(f);
+                    }
+                } else if (!f.isBot && remoteInputs[f.id]) {
+                    const ri = remoteInputs[f.id];
+                    moveX = ri.moveX || 0;
+                    jumpPressed = !!ri.jump;
+                    targetAimAngle = ri.aimAngle ?? f.armAngle;
+                    if (ri.special) {
+                        activateWeaponSpecial(f);
+                        ri.special = false;
                     }
                 } else {
-                    // Smart AI Bot Logic
+                    // Smart Elastic AI Bot
                     const enemy = fighters.find(o => o.id !== f.id && o.alive);
                     if (enemy) {
                         const dx = enemy.x - f.x;
@@ -1815,11 +2074,11 @@
                         targetAimAngle = Math.atan2(dy, dx);
 
                         if (f.weapon.type === 'ranged') {
-                            moveX = dist > 320 ? Math.sign(dx) * 0.8 : (dist < 160 ? -Math.sign(dx) * 0.7 : 0);
+                            moveX = dist > 320 ? Math.sign(dx) * 0.8 : (dist < 150 ? -Math.sign(dx) * 0.7 : 0);
                         } else {
                             moveX = dist > 65 ? Math.sign(dx) * 0.9 : Math.sin(Date.now() * 0.005) * 0.5;
                         }
-                        if ((dy < -70 || f.y > 490) && Math.random() < 0.05) {
+                        if ((dy < -75 || f.y > 520) && Math.random() < 0.06) {
                             jumpPressed = true;
                         }
                         if (f.specialCooldown === 0 && dist < 350 && Math.random() < 0.025) {
@@ -1828,19 +2087,20 @@
                     }
                 }
 
-                // Horizontal Acceleration
+                // Smooth Horizontal Movement
                 f.vx += moveX * 1.15;
-                f.vx *= 0.84;
+                f.vx *= 0.85;
 
-                // Jump
+                // Double Jump
                 if (jumpPressed && f.jumpsLeft > 0 && f.vy > -3) {
-                    f.vy = -12.2;
+                    f.vy = -13.2;
                     f.jumpsLeft--;
-                    spawnParticles(f.x, f.y + 40, f.color, 5, 3);
+                    f.bodyAngVel += moveX * 0.08;
+                    spawnParticles(f.x, f.y + 40, f.color, 6, 3.5);
                 }
 
-                // Gravity (Umbrella slow fall!)
-                const grav = (f.weapon.id === 'umbrella' && f.vy > 0) ? 0.28 : 0.56;
+                // Gravity
+                const grav = (f.weapon.id === 'umbrella' && f.vy > 0) ? 0.28 : 0.55;
                 f.vy += grav;
                 f.x += f.vx;
                 f.y += f.vy;
@@ -1849,25 +2109,25 @@
                     f.walkPhase += Math.abs(f.vx) * 0.055;
                 }
 
-                // Weapon Arm Rotation & Automatic Swing / Fire
+                // 360-degree Weapon Arm Rotation
                 let angleDiff = targetAimAngle - f.armAngle;
                 while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
                 while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-                f.armAngle += angleDiff * 0.22 + f.armVel;
+                f.armAngle += angleDiff * 0.24 + f.armVel;
                 f.armVel *= 0.82;
 
-                // Ranged Auto-Fire when aiming/moving
+                // Ranged Weapon Auto-Fire
                 if (f.weapon.type === 'ranged' && f.attackCooldown === 0) {
-                    const shouldFire = (!f.isBot && f.id === currentUserId)
-                        ? (joyState.active || keys['KeyA'] || keys['KeyD'] || keys['ArrowLeft'] || keys['ArrowRight'] || keys['KeyJ'] || keys['Enter'])
-                        : Math.random() < 0.08;
+                    const shouldFire = (!f.isBot && f.id === currentUserId && localInp)
+                        ? localInp.firing
+                        : (!f.isBot && remoteInputs[f.id] ? remoteInputs[f.id].firing : Math.random() < 0.08);
                     if (shouldFire) {
                         fireWeaponProjectile(f, f.armAngle);
                         f.attackCooldown = f.weapon.id === 'minigun' ? 10 : (f.weapon.id === 'sniper' ? 42 : 26);
                     }
                 }
 
-                // Platform Collisions
+                // Platform Collisions (Trucks, Temple Stones, Islands)
                 const footY = f.y + 42;
                 currentMap.platforms.forEach(plat => {
                     if (
@@ -1875,19 +2135,47 @@
                         f.x >= plat.x - 10 &&
                         f.x <= plat.x + plat.w + 10 &&
                         footY >= plat.y &&
-                        footY - f.vy <= plat.y + 18
+                        footY - f.vy <= plat.y + 20
                     ) {
                         f.y = plat.y - 42;
+                        // Slight elastic landing squash!
+                        if (f.vy > 8) {
+                            f.headOffsetY = 4;
+                        }
                         f.vy = 0;
                         f.jumpsLeft = 2;
                     }
                 });
 
-                // Arena Walls & Hazard Ring-Out (Instant KO!)
-                if (f.x < 30) { f.x = 30; f.vx = Math.abs(f.vx) * 0.6; }
-                if (f.x > WORLD_W - 30) { f.x = WORLD_W - 30; f.vx = -Math.abs(f.vx) * 0.6; }
-                if (f.y > WORLD_H - 35) {
-                    eliminateFighter(f);
+                // Arena Walls (Elastic Bounce)
+                if (f.x < 32) { f.x = 32; f.vx = Math.abs(f.vx) * 0.7; }
+                if (f.x > WORLD_W - 32) { f.x = WORLD_W - 32; f.vx = -Math.abs(f.vx) * 0.7; }
+
+                // SOLID / ELASTIC GROUND FLOOR (NO INSTANT DEATH WHEN FALLING OFF TRUCKS!)
+                if (footY >= FLOOR_Y) {
+                    f.y = FLOOR_Y - 42;
+                    f.jumpsLeft = 2;
+                    if (currentMap.floorType === 'trampoline') {
+                        f.vy = -17.5;
+                        f.bodyAngVel = (Math.random() - 0.5) * 0.25;
+                        sfx.playBoing();
+                        spawnParticles(f.x, FLOOR_Y, '#22d3ee', 10, 5);
+                    } else if (currentMap.floorType === 'lava_bounce') {
+                        f.vy = -15.5;
+                        f.hp = Math.max(0, f.hp - 25); // Small burn damage + upward bounce, NOT instant KO!
+                        sfx.playBoing();
+                        spawnParticles(f.x, FLOOR_Y, '#f97316', 14, 6);
+                        spawnDamageNumber(f.x, f.y, 25, '#f97316');
+                        if (f.hp <= 0) eliminateFighter(f);
+                    } else {
+                        // Solid Asphalt Road / Temple Stone Floor: You land safely and can jump right back onto trucks!
+                        if (f.vy > 9) {
+                            f.vy = -f.vy * 0.32; // Elastic rubbery rebound
+                            f.headOffsetY = 5;
+                        } else {
+                            f.vy = 0;
+                        }
+                    }
                 }
             });
 
@@ -1898,7 +2186,7 @@
                 document.getElementById('specialCooldownOverlay').style.transform = `scaleY(${ratio})`;
             }
 
-            // Melee Weapon Tip Collisions
+            // Melee Weapon Collisions
             for (let i = 0; i < fighters.length; i++) {
                 const a = fighters[i];
                 if (!a.alive || a.weapon.type !== 'melee') continue;
@@ -1911,13 +2199,13 @@
                     const b = fighters[j];
                     if (!b.alive) continue;
                     const d = Math.hypot(tipX - b.x, tipY - (b.y - 10));
-                    if (d < 34) {
+                    if (d < 36) {
                         applyHitToFighter(a, b, a.weapon.dmg, a.weapon.kb);
                     }
                 }
             }
 
-            // Update Projectiles
+            // Projectiles Update
             for (let i = projectiles.length - 1; i >= 0; i--) {
                 const p = projectiles[i];
                 p.life--;
@@ -1939,7 +2227,7 @@
                 let hit = false;
                 fighters.forEach(target => {
                     if (target.alive && target.id !== p.ownerId) {
-                        if (Math.hypot(p.x - target.x, p.y - (target.y - 12)) < 30) {
+                        if (Math.hypot(p.x - target.x, p.y - (target.y - 12)) < 32) {
                             const owner = fighters.find(f => f.id === p.ownerId) || target;
                             applyHitToFighter(owner, target, p.dmg, p.kb);
                             if (p.kind === 'ice') target.frozenTimer = 75;
@@ -1952,7 +2240,7 @@
                     }
                 });
 
-                if (hit || p.life <= 0 || p.x < -50 || p.x > WORLD_W + 50 || p.y > WORLD_H) {
+                if (hit || p.life <= 0 || p.x < -50 || p.x > WORLD_W + 50 || p.y > FLOOR_Y) {
                     if (hit && (p.kind === 'rocket' || p.kind === 'bomb' || p.kind === 'fireball')) {
                         spawnParticles(p.x, p.y, '#f97316', 20, 7);
                         sfx.playShoot('boom');
@@ -1961,7 +2249,6 @@
                 }
             }
 
-            // Update Particles & Damage Numbers
             for (let i = particles.length - 1; i >= 0; i--) {
                 const pt = particles[i];
                 pt.x += pt.vx;
@@ -1982,16 +2269,14 @@
         }
 
         function renderScene() {
-            const currentMap = MAPS.find(m => m.id === (bgDemoMode ? 'anubis' : roomState.mapId)) || MAPS[0];
+            const currentMap = MAPS.find(m => m.id === (bgDemoMode ? 'trucks' : roomState.mapId)) || MAPS[0];
 
-            // Sky Gradient
             const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
             grad.addColorStop(0, currentMap.skyTop);
             grad.addColorStop(1, currentMap.skyBot);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Responsive Scale to fit WORLD_W x WORLD_H centered on any screen (PC/Mobile)
             const scaleX = canvas.width / WORLD_W;
             const scaleY = canvas.height / WORLD_H;
             const scale = Math.min(scaleX, scaleY);
@@ -2004,25 +2289,16 @@
             ctx.translate(offsetX + shakeX, offsetY + shakeY);
             ctx.scale(scale, scale);
 
-            // Background Decorative Architecture (Anubis Statues / Cyber Grid)
+            // Background Scenery
             if (currentMap.id === 'anubis') {
                 ctx.fillStyle = 'rgba(180, 83, 9, 0.22)';
                 ctx.beginPath();
-                ctx.moveTo(150, 540); ctx.lineTo(340, 260); ctx.lineTo(530, 540);
-                ctx.moveTo(560, 540); ctx.lineTo(760, 290); ctx.lineTo(960, 540);
+                ctx.moveTo(150, FLOOR_Y); ctx.lineTo(340, 260); ctx.lineTo(530, FLOOR_Y);
+                ctx.moveTo(560, FLOOR_Y); ctx.lineTo(760, 290); ctx.lineTo(960, FLOOR_Y);
                 ctx.fill();
-            } else if (currentMap.id === 'cyber') {
-                ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
-                ctx.lineWidth = 1.5;
-                for (let gx = 0; gx <= WORLD_W; gx += 60) {
-                    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, WORLD_H); ctx.stroke();
-                }
-                for (let gy = 0; gy <= WORLD_H; gy += 60) {
-                    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(WORLD_W, gy); ctx.stroke();
-                }
             }
 
-            // Render Platforms
+            // Platforms (Dual Trucks, Temple Stone, Islands, Obsidian)
             currentMap.platforms.forEach(plat => {
                 ctx.save();
                 if (plat.style === 'truck_blue' || plat.style === 'truck_red') {
@@ -2044,7 +2320,7 @@
                     ctx.fillRect(plat.x + plat.w - 38, plat.y + 42, 30, 28);
                     // Wheels
                     ctx.fillStyle = '#0f172a';
-                    [plat.x + 45, plat.x + 110, plat.x + plat.w - 35].forEach(wx => {
+                    [plat.x + 45, plat.x + 115, plat.x + plat.w - 35].forEach(wx => {
                         ctx.beginPath();
                         ctx.arc(wx, plat.y + plat.h - 22, 22, 0, Math.PI * 2);
                         ctx.fill();
@@ -2054,12 +2330,6 @@
                         ctx.fill();
                         ctx.fillStyle = '#0f172a';
                     });
-                } else if (plat.style === 'neon') {
-                    ctx.fillStyle = '#0f172a';
-                    ctx.strokeStyle = '#22d3ee';
-                    ctx.lineWidth = 3;
-                    ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
-                    ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
                 } else if (plat.style === 'grass') {
                     ctx.fillStyle = '#78350f';
                     ctx.fillRect(plat.x, plat.y + 10, plat.w, plat.h - 10);
@@ -2075,17 +2345,28 @@
                 ctx.restore();
             });
 
-            // Bottom Hazard Zone (Water / Lava / Sand)
-            ctx.fillStyle = currentMap.hazardColor;
-            ctx.globalAlpha = 0.85;
-            ctx.fillRect(-200, WORLD_H - 35, WORLD_W + 400, 120);
-            ctx.globalAlpha = 1;
+            // Solid Ground Floor (Asphalt Road / Temple Floor / Trampoline / Bounce Lava)
+            ctx.fillStyle = currentMap.floorColor;
+            ctx.fillRect(-300, FLOOR_Y, WORLD_W + 600, 200);
+            if (currentMap.floorType === 'road') {
+                // Highway Dashed Line
+                ctx.strokeStyle = '#facc15';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([28, 22]);
+                ctx.beginPath();
+                ctx.moveTo(-200, FLOOR_Y + 20);
+                ctx.lineTo(WORLD_W + 200, FLOOR_Y + 20);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            } else if (currentMap.floorType === 'trampoline') {
+                ctx.fillStyle = '#a5f3fc';
+                ctx.fillRect(-300, FLOOR_Y, WORLD_W + 600, 6);
+            }
 
-            // Render Fighters (NO NAMES DRAWN DURING COMBAT - ONLY COLOR, SKIN & HP BAR!)
+            // Render Elastic Ragdoll Fighters (NO NAMES SHOWN - ONLY COLOR, SKIN & HP BAR!)
             fighters.forEach(f => {
                 if (!f.alive) return;
 
-                // Shield Aura
                 if (f.shieldTimer > 0) {
                     ctx.strokeStyle = '#38bdf8';
                     ctx.lineWidth = 3;
@@ -2094,33 +2375,20 @@
                     ctx.stroke();
                 }
 
-                drawStickmanCharacter(
-                    ctx,
-                    f.x,
-                    f.y,
-                    1.0,
-                    f.color,
-                    f.skin,
-                    0,
-                    f.armAngle,
-                    f.walkPhase,
-                    f.weapon,
-                    f.specialCooldown > f.maxSpecialCooldown - 25,
-                    f.frozenTimer > 0
-                );
+                drawElasticStickman(ctx, f, 1.0);
 
-                // Minimalist Floating HP Bar (NO NAME TEXT!)
-                const barW = 46;
-                const barH = 6;
+                // Minimalist Floating HP Bar (NO PLAYER NAMES!)
+                const barW = 50;
+                const barH = 6.5;
                 const bx = f.x - barW / 2;
                 const by = f.y - 62;
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
                 ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
-                ctx.fillStyle = f.hp > 35 ? '#22c55e' : '#ef4444';
+                ctx.fillStyle = f.hp > 350 ? '#22c55e' : '#ef4444';
                 ctx.fillRect(bx, by, barW * (f.hp / f.maxHp), barH);
             });
 
-            // Render Projectiles
+            // Projectiles
             projectiles.forEach(p => {
                 ctx.save();
                 ctx.translate(p.x, p.y);
@@ -2141,7 +2409,7 @@
                 ctx.restore();
             });
 
-            // Render Particles
+            // Particles
             particles.forEach(pt => {
                 ctx.fillStyle = pt.color;
                 ctx.globalAlpha = Math.max(0, pt.life / 35);
@@ -2151,7 +2419,7 @@
             });
             ctx.globalAlpha = 1;
 
-            // Render Damage Numbers
+            // Damage Numbers
             floatingTexts.forEach(ft => {
                 ctx.font = '900 18px "Chakra Petch", sans-serif';
                 ctx.fillStyle = ft.color;
@@ -2165,8 +2433,8 @@
         function setupBackgroundDemoFight() {
             bgDemoMode = true;
             fighters = [
-                { id: 'demo1', name: '', color: '#22d3ee', skin: 'ninja', isBot: true, weapon: WEAPONS[0], x: 350, y: 200, vx: 0, vy: 0, hp: 100, maxHp: 100, alive: true, armAngle: 0, armVel: 0, walkPhase: 0, jumpsLeft: 2, attackCooldown: 0, specialCooldown: 40, maxSpecialCooldown: 160, frozenTimer: 0, shieldTimer: 0, hitFlash: 0 },
-                { id: 'demo2', name: '', color: '#facc15', skin: 'pharaoh', isBot: true, weapon: WEAPONS[16], x: 680, y: 200, vx: 0, vy: 0, hp: 100, maxHp: 100, alive: true, armAngle: Math.PI, armVel: 0, walkPhase: 0, jumpsLeft: 2, attackCooldown: 0, specialCooldown: 80, maxSpecialCooldown: 160, frozenTimer: 0, shieldTimer: 0, hitFlash: 0 }
+                { id: 'demo1', name: '', color: '#22d3ee', skin: 'ninja', isBot: true, weapon: WEAPONS[0], x: 340, y: 240, vx: 0, vy: 0, hp: 1000, maxHp: 1000, alive: true, armAngle: 0, armVel: 0, bodyAngle: 0, bodyAngVel: 0, headOffsetX: 0, headOffsetY: 0, walkPhase: 0, jumpsLeft: 2, attackCooldown: 0, specialCooldown: 40, maxSpecialCooldown: 150, frozenTimer: 0, shieldTimer: 0, hitFlash: 0 },
+                { id: 'demo2', name: '', color: '#facc15', skin: 'pharaoh', isBot: true, weapon: WEAPONS[16], x: 690, y: 240, vx: 0, vy: 0, hp: 1000, maxHp: 1000, alive: true, armAngle: Math.PI, armVel: 0, bodyAngle: 0, bodyAngVel: 0, headOffsetX: 0, headOffsetY: 0, walkPhase: 0, jumpsLeft: 2, attackCooldown: 0, specialCooldown: 80, maxSpecialCooldown: 150, frozenTimer: 0, shieldTimer: 0, hitFlash: 0 }
             ];
         }
 
@@ -2180,7 +2448,7 @@
         }
 
         // ============================================================================
-        // 11. EVENT BINDINGS & ARSENAL MODAL POPULATOR
+        // 11. EVENT BINDINGS & ARSENAL MODAL
         // ============================================================================
         function populateArsenalModal() {
             const grid = document.getElementById('arsenalGrid');
@@ -2208,6 +2476,9 @@
 
         document.getElementById('btnLeaveRoom').onclick = () => {
             if (roomUnsubscribe) roomUnsubscribe();
+            if (liveSnapUnsub) liveSnapUnsub();
+            if (inputSnapUnsub) inputSnapUnsub();
+            clearInterval(stateSyncTimer);
             roomState.code = null;
             setupBackgroundDemoFight();
             showScreen('menu');
@@ -2226,9 +2497,9 @@
 
         document.getElementById('btnReturnLobby').onclick = async () => {
             roomState.status = 'lobby';
-            roomState.winner = null;
+            roomState.winnerId = null;
             if (roomState.adminId === currentUserId) {
-                await syncRoomToCloud();
+                await writeRoomState();
             }
             showScreen('lobby');
             updateLobbyUI();
@@ -2255,7 +2526,7 @@
                 showToast('Ekranda Touchpad aktivləşdirildi', '🕹️');
             } else {
                 layer.classList.add('hidden');
-                showToast('Ekranda Touchpad gizlədildi (WASD aktivdir)', '⌨️');
+                showToast('Ekranda Touchpad gizlədildi (WASD + Siçan aktivdir)', '⌨️');
             }
         };
 
