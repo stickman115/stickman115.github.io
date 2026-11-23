@@ -642,54 +642,139 @@
         // Unique persistent session ID per browser tab
         const currentUserId = 'usr_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36).slice(-4);
 
-        const localBus = ('BroadcastChannel' in window) ? new BroadcastChannel('supreme_stickman_rooms_v3') : null;
+        const localBus = ('BroadcastChannel' in window) ? new BroadcastChannel('supreme_stickman_rooms_v4') : null;
         const localRoomCache = {};
         let heartbeatTimer = null;
         let relayPollTimer = null;
 
-        // Public key-value relay fallback so separate devices/browsers can discover 5-digit rooms reliably
-        const RELAY_PREFIX = 'sds_room_v3_';
-        async function relayWrite(key, obj) {
+        // Normalize room code so spaces/case/extra chars never break room lookup
+        function normalizeRoomCode(raw) {
+            return String(raw || '').trim().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        }
+
+        // Write room snapshot to URL hash so opening or sharing the page link preserves room state
+        function syncRoomToUrlHash(roomObj) {
             try {
-                localStorage.setItem(RELAY_PREFIX + key, JSON.stringify({ v: obj, t: Date.now() }));
+                if (!roomObj || !roomObj.code || roomObj.status === 'menu') {
+                    if (window.location.hash && window.location.hash.includes('room=')) {
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                    }
+                    return;
+                }
+                const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(roomObj))));
+                const nextHash = `#room=${encodeURIComponent(roomObj.code)}&data=${encoded}`;
+                if (window.location.hash !== nextHash) {
+                    history.replaceState(null, '', nextHash);
+                }
             } catch (_) {}
+        }
+
+        function readRoomFromUrlHash() {
             try {
-                await fetch(`https://kvdb.io/api/v1/buckets/sds_stickman_az/keys/${encodeURIComponent(key)}`, {
+                const h = window.location.hash || '';
+                const match = h.match(/data=([^&]+)/);
+                if (!match) return null;
+                const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(match[1])))));
+                if (decoded && decoded.code) {
+                    decoded.code = normalizeRoomCode(decoded.code);
+                    return decoded;
+                }
+            } catch (_) {}
+            return null;
+        }
+
+        // Multi-endpoint relay fallback so separate devices/browsers can discover rooms reliably
+        const RELAY_PREFIX = 'sds_room_v4_';
+        async function relayWrite(key, obj) {
+            const cleanKey = String(key);
+            const wrapped = { v: obj, t: Date.now() };
+            try {
+                localStorage.setItem(RELAY_PREFIX + cleanKey, JSON.stringify(wrapped));
+            } catch (_) {}
+
+            // Endpoint 1: kvdb.io
+            try {
+                await fetch(`https://kvdb.io/api/v1/buckets/sds_stickman_az/keys/${encodeURIComponent(cleanKey)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ v: obj, t: Date.now() })
+                    body: JSON.stringify(wrapped)
+                });
+            } catch (_) {}
+
+            // Endpoint 2: ntfy.sh retained message fallback
+            try {
+                await fetch(`https://ntfy.sh/sds_stickman_az_${encodeURIComponent(cleanKey)}`, {
+                    method: 'POST',
+                    headers: { 'X-Cache': 'yes' },
+                    body: JSON.stringify(wrapped)
                 });
             } catch (_) {}
         }
 
         async function relayRead(key) {
-            // Check localStorage first
+            const cleanKey = String(key);
+            const candidates = [];
+
+            // 1. Check URL hash if matching room
+            const hashRoom = readRoomFromUrlHash();
+            if (hashRoom && ('room_' + hashRoom.code) === cleanKey) {
+                candidates.push({ v: hashRoom, t: hashRoom.updatedAt || Date.now() });
+            }
+
+            // 2. Check localStorage
             try {
-                const raw = localStorage.getItem(RELAY_PREFIX + key);
+                const raw = localStorage.getItem(RELAY_PREFIX + cleanKey);
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    if (parsed && parsed.v && Date.now() - parsed.t < 1000 * 60 * 30) {
-                        return parsed.v;
+                    if (parsed && parsed.v && Date.now() - parsed.t < 1000 * 60 * 60) {
+                        candidates.push(parsed);
                     }
                 }
             } catch (_) {}
 
-            // Check kvdb public relay
+            // 3. Check kvdb.io
             try {
-                const res = await fetch(`https://kvdb.io/api/v1/buckets/sds_stickman_az/keys/${encodeURIComponent(key)}`, {
+                const res = await fetch(`https://kvdb.io/api/v1/buckets/sds_stickman_az/keys/${encodeURIComponent(cleanKey)}`, {
                     cache: 'no-store'
                 });
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.v) {
-                        try {
-                            localStorage.setItem(RELAY_PREFIX + key, JSON.stringify({ v: data.v, t: Date.now() }));
-                        } catch (_) {}
-                        return data.v;
+                        candidates.push({ v: data.v, t: data.t || data.v.updatedAt || Date.now() });
                     }
                 }
             } catch (_) {}
-            return null;
+
+            // 4. Check ntfy.sh latest cached message
+            try {
+                const res = await fetch(`https://ntfy.sh/sds_stickman_az_${encodeURIComponent(cleanKey)}/json?poll=1&since=1h`, {
+                    cache: 'no-store'
+                });
+                if (res.ok) {
+                    const text = await res.text();
+                    const lines = text.trim().split('\n').filter(Boolean);
+                    for (let i = lines.length - 1; i >= 0; i--) {
+                        try {
+                            const env = JSON.parse(lines[i]);
+                            if (env.event === 'message' && env.message) {
+                                const parsed = JSON.parse(env.message);
+                                if (parsed && parsed.v) {
+                                    candidates.push({ v: parsed.v, t: parsed.t || parsed.v.updatedAt || Date.now() });
+                                    break;
+                                }
+                            }
+                        } catch (_) {}
+                    }
+                }
+            } catch (_) {}
+
+            if (candidates.length === 0) return null;
+            candidates.sort((a, b) => (b.t || 0) - (a.t || 0));
+            const best = candidates[0].v;
+            try {
+                localStorage.setItem(RELAY_PREFIX + cleanKey, JSON.stringify({ v: best, t: Date.now() }));
+            } catch (_) {}
+            return best;
         }
 
         async function initFirebase() {
@@ -766,8 +851,9 @@
 
         async function writeRoomState() {
             if (!roomState.code) return;
+            const normCode = normalizeRoomCode(roomState.code);
             const payload = {
-                code: String(roomState.code),
+                code: normCode,
                 adminId: roomState.adminId,
                 status: roomState.status,
                 mapId: roomState.mapId,
@@ -775,14 +861,17 @@
                 winnerId: roomState.winnerId || null,
                 updatedAt: Date.now()
             };
-            localRoomCache[payload.code] = payload;
+            roomState.code = normCode;
+            roomState.updatedAt = payload.updatedAt;
+            localRoomCache[normCode] = payload;
+            syncRoomToUrlHash(payload);
             if (localBus) {
                 localBus.postMessage({ type: 'ROOM_UPDATE', room: payload });
             }
-            relayWrite('room_' + payload.code, payload);
+            await relayWrite('room_' + normCode, payload);
             if (firebaseReady && db) {
                 try {
-                    await setDoc(getRoomDocRef(payload.code), payload);
+                    await setDoc(getRoomDocRef(normCode), payload);
                 } catch (err) {
                     console.warn("Firestore write fallback:", err);
                 }
@@ -799,10 +888,15 @@
         }
 
         function handleIncomingRoomData(data) {
-            if (!data || !roomState.code || String(data.code) !== String(roomState.code)) return;
+            if (!data || !roomState.code) return;
+            const incomingCode = normalizeRoomCode(data.code);
+            const activeCode = normalizeRoomCode(roomState.code);
+            if (!incomingCode || incomingCode !== activeCode) return;
             if (data.updatedAt && roomState.updatedAt && data.updatedAt < roomState.updatedAt - 500) return;
             const prevStatus = roomState.status;
-            roomState = { ...roomState, ...data };
+            roomState = { ...roomState, ...data, code: activeCode };
+            localRoomCache[activeCode] = roomState;
+            syncRoomToUrlHash(roomState);
             updateLobbyUI();
 
             if (prevStatus !== 'playing' && roomState.status === 'playing') {
@@ -920,20 +1014,24 @@
             showToast(`Otaq yaradıldı! Kod: ${code}`, '👑');
         }
 
-        async function discoverRoomByCode(code) {
+        async function discoverRoomByCode(rawCode) {
+            const code = normalizeRoomCode(rawCode);
+            if (!code) return null;
+
             // 1. Instant local cache / BroadcastChannel
             if (localRoomCache[code]) return localRoomCache[code];
             if (localBus) {
                 localBus.postMessage({ type: 'QUERY_ROOM', code });
-                await new Promise(r => setTimeout(r, 180));
+                await new Promise(r => setTimeout(r, 200));
                 if (localRoomCache[code]) return localRoomCache[code];
             }
 
-            // 2. Shared relay fallback (same device or cross-device relay)
+            // 2. Shared relay fallback (localStorage + URL hash + public relays)
             const relayed = await relayRead('room_' + code);
             if (relayed && relayed.code) {
-                localRoomCache[code] = relayed;
-                return relayed;
+                const normalized = { ...relayed, code: normalizeRoomCode(relayed.code) };
+                localRoomCache[code] = normalized;
+                return normalized;
             }
 
             // 3. Firestore cloud lookup
@@ -941,7 +1039,7 @@
                 try {
                     const snap = await getDoc(getRoomDocRef(code));
                     if (snap.exists()) {
-                        const d = snap.data();
+                        const d = { ...snap.data(), code };
                         localRoomCache[code] = d;
                         return d;
                     }
@@ -951,10 +1049,10 @@
             return null;
         }
 
-        // JOIN EXISTING ROOM (RETRY UP TO 2.5s SO FRESH ROOMS ARE NEVER FALSELY MISSED)
+        // JOIN EXISTING ROOM (RETRY UP TO 3s SO FRESH ROOMS ARE NEVER FALSELY MISSED)
         async function joinExistingRoom() {
             sfx.init();
-            const rawInput = document.getElementById('inputRoomCode').value.trim().replace(/\s+/g, '');
+            const rawInput = normalizeRoomCode(document.getElementById('inputRoomCode').value);
             if (rawInput.length < 4) {
                 showToast('Zəhmət olmasa 5 rəqəmli otaq kodunu yazın!', '⚠️');
                 return;
@@ -966,7 +1064,7 @@
 
             try {
                 let foundRoom = null;
-                const deadline = Date.now() + 2500;
+                const deadline = Date.now() + 3000;
 
                 while (!foundRoom && Date.now() < deadline) {
                     foundRoom = await discoverRoomByCode(rawInput);
@@ -976,7 +1074,7 @@
                 }
 
                 if (!foundRoom) {
-                    showToast(`"${rawInput}" otağı tapılmadı! 5 rəqəmli kodu yoxlayın.`, '❌');
+                    showToast(`"${rawInput}" otağı tapılmadı! Eyni otağın açıq olduğundan əmin olun.`, '❌');
                     return;
                 }
 
@@ -1013,7 +1111,7 @@
 
                 roomState = {
                     ...foundRoom,
-                    code: String(rawInput),
+                    code: rawInput,
                     players: existingPlayers,
                     updatedAt: Date.now()
                 };
@@ -2605,6 +2703,7 @@
             clearInterval(heartbeatTimer);
             clearInterval(relayPollTimer);
             roomState.code = null;
+            syncRoomToUrlHash(null);
             setupBackgroundDemoFight();
             showScreen('menu');
         };
