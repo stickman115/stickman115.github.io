@@ -144,8 +144,8 @@
 
             <!-- Live Server Connection Indicator -->
             <div class="mb-5 flex items-center justify-center">
-                <span id="serverStatusPill" class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                    ⏳ Onlayn serverə qoşulur...
+                <span id="serverStatusPill" class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    ● ONLAYN SERVER AKTİV (Relé + Broadcast)
                 </span>
             </div>
 
@@ -245,11 +245,11 @@
 
                         <div class="col-span-7 space-y-3">
                             <div>
-                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Rəng Seç (12 Rəng):</div>
-                                <div id="colorPalette" class="grid grid-cols-6 gap-1.5"></div>
+                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Rəng Seç (10 Rəng):</div>
+                                <div id="colorPalette" class="grid grid-cols-5 gap-1.5"></div>
                             </div>
                             <div>
-                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Skin Seç (15 Skin):</div>
+                                <div class="text-xs text-slate-400 font-semibold mb-1.5">Skin Seç (13 Skin):</div>
                                 <div id="skinGrid" class="grid grid-cols-3 gap-1.5 max-h-28 overflow-y-auto pr-1"></div>
                             </div>
                         </div>
@@ -259,14 +259,19 @@
                 <!-- Right Column: Room Players List & Admin Controls -->
                 <div class="lg:col-span-6 flex flex-col justify-between bg-slate-900/75 rounded-2xl p-4 border border-slate-800">
                     <div>
-                        <div class="flex items-center justify-between mb-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                             <h2 class="font-gaming text-base font-bold text-amber-400 flex items-center gap-2">
                                 <span>👥</span>
                                 <span>OTAQDAKI OYUNÇULAR (<span id="playerCountText">1</span>/5)</span>
                             </h2>
-                            <button id="btnAddBot" class="hidden btn-arcade px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-gaming font-bold text-xs cursor-pointer">
-                                + BOT ƏLAVƏ ET
-                            </button>
+                            <div class="flex items-center gap-1.5">
+                                <button id="btnAddBot" class="hidden btn-arcade px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-gaming font-bold text-xs cursor-pointer">
+                                    + AI BOT
+                                </button>
+                                <button id="btnAddLocalPlayer" class="hidden btn-arcade px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-gaming font-bold text-xs cursor-pointer" title="Eyni cihazda 2-5 oyunçu əlavə et">
+                                    + EYNİ CİHAZ
+                                </button>
+                            </div>
                         </div>
 
                         <div id="lobbyPlayersList" class="space-y-2 mb-4 max-h-52 overflow-y-auto pr-1"></div>
@@ -406,7 +411,7 @@
         import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ============================================================================
-        // 1. PROCEDURAL WEB AUDIO ENGINE
+        // 1. SYNTHESIZED SOUND ENGINE (WEB AUDIO API - NO EXTERNAL AUDIO FILES)
         // ============================================================================
         class SoundEngine {
             constructor() {
@@ -414,62 +419,59 @@
                 this.muted = false;
             }
             init() {
-                if (!this.ctx) {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    if (AudioCtx) this.ctx = new AudioCtx();
-                }
-                if (this.ctx && this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
+                if (this.muted) return;
+                try {
+                    if (!this.ctx) {
+                        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                        this.ctx = new AudioCtx();
+                    }
+                    if (this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
+                } catch (_) {}
             }
-            playTone(freq, type = 'sine', duration = 0.15, vol = 0.18, slideTo = null) {
+            playTone(freq, endFreq, duration, type = 'sine', vol = 0.14) {
                 if (this.muted) return;
                 this.init();
                 if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                if (slideTo) {
-                    osc.frequency.exponentialRampToValueAtTime(slideTo, this.ctx.currentTime + duration);
-                }
-                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + duration);
+                try {
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, now);
+                    if (endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), now + duration);
+                    gain.gain.setValueAtTime(vol, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + duration);
+                } catch (_) {}
             }
             playHit(heavy = false) {
-                this.playTone(heavy ? 135 : 250, 'sawtooth', heavy ? 0.22 : 0.12, heavy ? 0.26 : 0.15, 45);
-            }
-            playBoing() {
-                this.playTone(180, 'sine', 0.25, 0.2, 460);
+                this.playTone(heavy ? 160 : 240, heavy ? 42 : 75, heavy ? 0.22 : 0.12, heavy ? 'sawtooth' : 'triangle', heavy ? 0.2 : 0.12);
             }
             playShoot(kind = 'laser') {
                 if (kind === 'guitar') {
-                    const notes = [329.63, 392.00, 440.00, 523.25, 659.25];
-                    const n = notes[Math.floor(Math.random() * notes.length)];
-                    this.playTone(n, 'triangle', 0.35, 0.22, n * 1.02);
+                    this.playTone(330, 660, 0.18, 'triangle', 0.14);
                 } else if (kind === 'boom') {
-                    this.playTone(105, 'square', 0.35, 0.25, 28);
+                    this.playTone(130, 32, 0.28, 'sawtooth', 0.22);
                 } else {
-                    this.playTone(680, 'sawtooth', 0.14, 0.14, 180);
+                    this.playTone(760, 220, 0.1, 'square', 0.08);
                 }
             }
+            playBoing() {
+                this.playTone(150, 480, 0.16, 'sine', 0.13);
+            }
             playKO() {
-                this.playTone(280, 'sawtooth', 0.5, 0.28, 50);
+                this.playTone(220, 35, 0.45, 'sawtooth', 0.24);
             }
             playJumpscareVictory() {
                 if (this.muted) return;
                 this.init();
-                if (!this.ctx) return;
-                this.playTone(90, 'sawtooth', 0.7, 0.45, 30);
-                this.playTone(180, 'square', 0.55, 0.35, 52);
-                setTimeout(() => this.playTone(523.25, 'triangle', 0.25, 0.25), 180);
-                setTimeout(() => this.playTone(659.25, 'triangle', 0.25, 0.25), 300);
-                setTimeout(() => this.playTone(783.99, 'triangle', 0.3, 0.3), 420);
-                setTimeout(() => this.playTone(1046.50, 'sawtooth', 0.65, 0.34), 540);
+                this.playTone(110, 880, 0.35, 'sawtooth', 0.26);
+                setTimeout(() => this.playTone(523.25, 1046.5, 0.4, 'triangle', 0.22), 120);
             }
         }
         const sfx = new SoundEngine();
@@ -478,72 +480,68 @@
         // 2. 58+ UNIQUE WEAPONS ARSENAL
         // ============================================================================
         const WEAPONS = [
-            { id: 'katana', name: 'Katana', cat: 'Qılınc', color: '#e2e8f0', accent: '#38bdf8', len: 74, dmg: 52, kb: 12, type: 'melee', special: 'dash', desc: 'İldırım sürəti ilə irəli atılır' },
-            { id: 'lightsaber_blue', name: 'Mavi İşıq Qılıncı', cat: 'Enerji', color: '#38bdf8', accent: '#bae6fd', len: 78, dmg: 58, kb: 13, type: 'melee', special: 'throw_return', desc: 'Fırlanaraq atılır və geri qayıdır' },
-            { id: 'lightsaber_red', name: 'Qırmızı İşıq Qılıncı', cat: 'Enerji', color: '#ef4444', accent: '#fecaca', len: 78, dmg: 62, kb: 14, type: 'melee', special: 'force_push', desc: 'Güclü enerji dalğası itələyir' },
-            { id: 'greatsword', name: 'Nəhəng Qılınc', cat: 'Ağır', color: '#94a3b8', accent: '#f59e0b', len: 90, dmg: 75, kb: 18, type: 'melee', special: 'slam', desc: 'Yeri titrədən ağır zərbə' },
-            { id: 'scythe', name: 'Əcəl Dəryazı', cat: 'Qaranlıq', color: '#a855f7', accent: '#1e1b4b', len: 86, dmg: 64, kb: 15, type: 'melee', special: 'pull', desc: 'Rəqibi özünə tərəf çəkir' },
-            { id: 'battle_axe', name: 'Döyüş Baltası', cat: 'Ağır', color: '#cbd5e1', accent: '#dc2626', len: 76, dmg: 70, kb: 17, type: 'melee', special: 'spin', desc: '360° fırlanan ölümcül zərbə' },
-            { id: 'spear', name: 'Qızıl Nizə', cat: 'Nizə', color: '#fbbf24', accent: '#fef08a', len: 94, dmg: 54, kb: 13, type: 'melee', special: 'dash', desc: 'Uzaq məsafəli deşici həmlə' },
-            { id: 'halberd', name: 'Alebarda', cat: 'Nizə', color: '#94a3b8', accent: '#f97316', len: 92, dmg: 66, kb: 16, type: 'melee', special: 'slam', desc: 'Balta və nizə kombinasiyası' },
-            { id: 'rapier', name: 'Rapira', cat: 'Qılınc', color: '#f8fafc', accent: '#eab308', len: 80, dmg: 48, kb: 10, type: 'melee', special: 'dash', desc: 'Çox sürətli ardıcıl zərbələr' },
-            { id: 'chainsaw', name: 'Elektrik Mişar', cat: 'Mexaniki', color: '#f97316', accent: '#334155', len: 72, dmg: 68, kb: 14, type: 'melee', special: 'dash', desc: 'Kəsici dişlərlə irəli şığıyır' },
-            { id: 'claymore', name: 'Kleymor', cat: 'Qılınc', color: '#64748b', accent: '#38bdf8', len: 88, dmg: 72, kb: 17, type: 'melee', special: 'shockwave', desc: 'Külək dalğası buraxır' },
-            { id: 'dual_daggers', name: 'İkili Xəncər', cat: 'Sürət', color: '#2dd4bf', accent: '#0f766e', len: 58, dmg: 46, kb: 11, type: 'melee', special: 'teleport_behind', desc: 'Rəqibin arxasına ışınlanır' },
-            { id: 'nunchucks', name: 'Nunçaku', cat: 'Sürət', color: '#d97706', accent: '#fde68a', len: 62, dmg: 50, kb: 13, type: 'melee', special: 'spin', desc: 'Sürətli fırlanma qalxanı' },
-            { id: 'sai', name: 'Ninja Sai', cat: 'Sürət', color: '#94a3b8', accent: '#ef4444', len: 60, dmg: 48, kb: 12, type: 'melee', special: 'projectile_fast', desc: 'Bıçaq enerjisi atır' },
-            { id: 'crystal_sword', name: 'Kristal Qılınc', cat: 'Sehrli', color: '#ec4899', accent: '#fbcfe8', len: 78, dmg: 60, kb: 14, type: 'melee', special: 'shard_burst', desc: 'Kristal qəlpələri saçır' },
-            { id: 'shadow_blade', name: 'Kölgə Qılıncı', cat: 'Qaranlıq', color: '#6366f1', accent: '#090d16', len: 80, dmg: 62, kb: 14, type: 'melee', special: 'teleport_behind', desc: 'Qaranlıq içindən zərbə vurur' },
-
-            { id: 'mjolnir', name: 'Mjolnir (Tor Çəkici)', cat: 'Əfsanəvi', color: '#60a5fa', accent: '#93c5fd', len: 68, dmg: 78, kb: 20, type: 'melee', special: 'throw_return', desc: 'Atılır, ildırım vurur və ələ qayıdır!' },
-            { id: 'war_hammer', name: 'Döyüş Çəkici', cat: 'Ağır', color: '#78716c', accent: '#ef4444', len: 82, dmg: 80, kb: 21, type: 'melee', special: 'slam', desc: 'Rəqibi xəritədən uçurur' },
-            { id: 'spiked_club', name: 'Tikanlı Gürz', cat: 'Ağır', color: '#92400e', accent: '#cbd5e1', len: 78, dmg: 70, kb: 18, type: 'melee', special: 'slam', desc: 'Ağır zərbə və yüksək itələmə' },
-            { id: 'mace', name: 'Qızıl Əmud', cat: 'Ağır', color: '#f59e0b', accent: '#fef08a', len: 74, dmg: 66, kb: 17, type: 'melee', special: 'shockwave', desc: 'Şok dalğası yaradır' },
-            { id: 'giant_wrench', name: 'Nəhəng Açar', cat: 'Əyləncəli', color: '#94a3b8', accent: '#f97316', len: 78, dmg: 64, kb: 17, type: 'melee', special: 'spin', desc: 'Mexaniki fırlanma zərbəsi' },
-            { id: 'frying_pan', name: 'Tava (Frying Pan)', cat: 'Əyləncəli', color: '#334155', accent: '#facc15', len: 64, dmg: 60, kb: 19, type: 'melee', special: 'reflect', desc: 'Mərmiləri geri qaytarır!' },
-            { id: 'anchor', name: 'Gəmi Lövbəri', cat: 'Ağır', color: '#0284c7', accent: '#bae6fd', len: 84, dmg: 76, kb: 20, type: 'melee', special: 'pull', desc: 'Rəqibi lövbərlə dartır' },
-            { id: 'boxing_gloves', name: 'Boks Əlcəkləri', cat: 'Əyləncəli', color: '#ef4444', accent: '#ffffff', len: 54, dmg: 56, kb: 19, type: 'melee', special: 'dash', desc: 'Super nokaut yumruğu' },
-            { id: 'bo_staff', name: 'Bo Əsası', cat: 'Döyüş', color: '#b45309', accent: '#fde68a', len: 92, dmg: 52, kb: 15, type: 'melee', special: 'spin', desc: 'İki tərəfli müdafiə fırlanması' },
-            { id: 'tonfa', name: 'Polis Tonfası', cat: 'Döyüş', color: '#1e293b', accent: '#38bdf8', len: 60, dmg: 50, kb: 13, type: 'melee', special: 'reflect', desc: 'Zərbələri bloklayır' },
-            { id: 'sledgehammer', name: 'Balyoz', cat: 'Ağır', color: '#475569', accent: '#facc15', len: 84, dmg: 84, kb: 22, type: 'melee', special: 'slam', desc: 'Ən güclü itələmə zərbəsi' },
-            { id: 'baseball_bat', name: 'Beysbol Çubuğu', cat: 'Əyləncəli', color: '#d97706', accent: '#ef4444', len: 74, dmg: 58, kb: 21, type: 'melee', special: 'homerun', desc: 'Home-Run uçuş zərbəsi!' },
-
-            { id: 'bow', name: 'Kaman və Ox', cat: 'Uzaq', color: '#d97706', accent: '#fef08a', len: 56, dmg: 48, kb: 12, type: 'ranged', proj: 'arrow', special: 'multishot', desc: '3 ox birdən atır' },
-            { id: 'crossbow', name: 'Arbalet', cat: 'Uzaq', color: '#78350f', accent: '#38bdf8', len: 60, dmg: 60, kb: 15, type: 'ranged', proj: 'bolt', special: 'projectile_fast', desc: 'Sürətli zirehdələn ox' },
-            { id: 'sniper', name: 'Snayper Tüfəngi', cat: 'Odlu', color: '#334155', accent: '#ef4444', len: 86, dmg: 88, kb: 19, type: 'ranged', proj: 'sniper', special: 'projectile_fast', desc: 'Çox yüksək zərərli lazer nişangah' },
-            { id: 'shotgun', name: 'Ov Tüfəngi (Shotgun)', cat: 'Odlu', color: '#475569', accent: '#f97316', len: 70, dmg: 38, kb: 17, type: 'ranged', proj: 'pellet', special: 'multishot', desc: 'Yaxından dağıdıcı saçma' },
-            { id: 'dual_pistols', name: 'İkili Tapança', cat: 'Odlu', color: '#94a3b8', accent: '#facc15', len: 50, dmg: 40, kb: 10, type: 'ranged', proj: 'bullet', special: 'rapid', desc: 'Sürətli atəş seriyası' },
-            { id: 'minigun', name: 'Minigun Pulemyot', cat: 'Odlu', color: '#1e293b', accent: '#f59e0b', len: 78, dmg: 32, kb: 9, type: 'ranged', proj: 'bullet', special: 'rapid', desc: 'Mərmi yağışı yağdırır' },
-            { id: 'rocket_launcher', name: 'Raketatan (RPG)', cat: 'Partlayıcı', color: '#15803d', accent: '#ef4444', len: 80, dmg: 82, kb: 22, type: 'ranged', proj: 'rocket', special: 'boom', desc: 'Böyük partlayış yaradır' },
-            { id: 'laser_gun', name: 'Lazer Tapançası', cat: 'Enerji', color: '#06b6d4', accent: '#cffafe', len: 60, dmg: 52, kb: 12, type: 'ranged', proj: 'laser', special: 'beam', desc: 'İşıq sürətində lazer şüası' },
-            { id: 'plasma_rifle', name: 'Plazma Tüfəngi', cat: 'Enerji', color: '#8b5cf6', accent: '#ddd6fe', len: 72, dmg: 64, kb: 16, type: 'ranged', proj: 'plasma', special: 'boom', desc: 'Partlayan plazma kürəsi' },
-            { id: 'shuriken', name: 'Nəhəng Şuriken', cat: 'Ninja', color: '#cbd5e1', accent: '#38bdf8', len: 50, dmg: 46, kb: 11, type: 'ranged', proj: 'shuriken', special: 'multishot', desc: 'Fırlanan ninja ulduzları' },
-            { id: 'boomerang', name: 'Bumeranq', cat: 'Uzaq', color: '#f59e0b', accent: '#ef4444', len: 54, dmg: 52, kb: 14, type: 'ranged', proj: 'boomerang', special: 'throw_return', desc: 'Dövrə vurub geri qayıdır' },
-            { id: 'harpoon', name: 'Harpun (Qarmaq)', cat: 'Xüsusi', color: '#38bdf8', accent: '#facc15', len: 72, dmg: 48, kb: 15, type: 'ranged', proj: 'harpoon', special: 'pull', desc: 'Rəqibi qarmaqla özünə çəkir!' },
-            { id: 'blowpipe', name: 'Zəhərli Boru', cat: 'Uzaq', color: '#22c55e', accent: '#bbf7d0', len: 68, dmg: 42, kb: 9, type: 'ranged', proj: 'poison', special: 'multishot', desc: 'Zəhərli iynələr atır' },
-            { id: 'grenade_launcher', name: 'Qranataatan', cat: 'Partlayıcı', color: '#4d7c0f', accent: '#f97316', len: 70, dmg: 74, kb: 20, type: 'ranged', proj: 'bomb', special: 'boom', desc: 'Sıçrayan bombalar atır' },
-            { id: 'railgun', name: 'Elektromaqnit Top', cat: 'Enerji', color: '#2563eb', accent: '#93c5fd', len: 86, dmg: 85, kb: 21, type: 'ranged', proj: 'laser', special: 'beam', desc: 'Bütün xətti deşib keçir' },
-
-            { id: 'fire_staff', name: 'Alov Əsası', cat: 'Sehrli', color: '#f97316', accent: '#fef08a', len: 80, dmg: 60, kb: 15, type: 'ranged', proj: 'fireball', special: 'boom', desc: 'Alov kürələri yağdırır' },
-            { id: 'ice_wand', name: 'Buz Əsası', cat: 'Sehrli', color: '#38bdf8', accent: '#ffffff', len: 76, dmg: 48, kb: 12, type: 'ranged', proj: 'ice', special: 'freeze', desc: 'Rəqibi dondurub yavaşladır!' },
-            { id: 'lightning_trident', name: 'İldırım Üçdişlisi', cat: 'Əfsanəvi', color: '#facc15', accent: '#38bdf8', len: 88, dmg: 66, kb: 16, type: 'melee', special: 'lightning', desc: 'Göydən ildırım endirir!' },
-            { id: 'portal_gun', name: 'Portal Silahı', cat: 'Xüsusi', color: '#f97316', accent: '#38bdf8', len: 62, dmg: 44, kb: 12, type: 'ranged', proj: 'portal', special: 'teleport_cursor', desc: 'İstədiyin nöqtəyə ışınlan!' },
-            { id: 'gravity_orb', name: 'Qravitasiya Kürəsi', cat: 'Sehrli', color: '#9333ea', accent: '#f0abfc', len: 64, dmg: 54, kb: 19, type: 'ranged', proj: 'gravity', special: 'blackhole', desc: 'Qara dəlik yaradıb hamını çəkir' },
-            { id: 'necro_staff', name: 'Nekromant Əsası', cat: 'Qaranlıq', color: '#10b981', accent: '#064e3b', len: 80, dmg: 56, kb: 14, type: 'ranged', proj: 'skull', special: 'multishot', desc: 'Uçan ruh kəllələri göndərir' },
-            { id: 'wind_fan', name: 'Fırtına Yelpiyi', cat: 'Sehrli', color: '#2dd4bf', accent: '#ccfbf1', len: 60, dmg: 40, kb: 22, type: 'ranged', proj: 'wind', special: 'force_push', desc: 'Rəqibləri qasırğa ilə uçurur' },
-            { id: 'sun_staff', name: 'Günəş Əsası', cat: 'Sehrli', color: '#eab308', accent: '#ef4444', len: 82, dmg: 68, kb: 17, type: 'ranged', proj: 'fireball', special: 'beam', desc: 'Günəş şüası ilə yandırır' },
-            { id: 'void_ring', name: 'Boşluq Halqası', cat: 'Qaranlıq', color: '#4f46e5', accent: '#c7d2fe', len: 58, dmg: 60, kb: 16, type: 'ranged', proj: 'gravity', special: 'teleport_behind', desc: 'Məkanı bükərək hücum edir' },
-
-            { id: 'guitar', name: 'Rok Gitara 🎸', cat: 'Əfsanəvi', color: '#ef4444', accent: '#facc15', len: 74, dmg: 54, kb: 16, type: 'ranged', proj: 'note', special: 'music_wave', desc: 'Musiqi notları ilə rəqibi uçurur!' },
-            { id: 'umbrella', name: 'Sehrli Çətir ☂️', cat: 'Xüsusi', color: '#ec4899', accent: '#fbcfe8', len: 70, dmg: 46, kb: 14, type: 'melee', special: 'float_shield', desc: 'Havada süzülür və zərbəni bloklayır' },
-            { id: 'shield', name: 'Sparta Qalxanı 🛡️', cat: 'Müdafiə', color: '#f59e0b', accent: '#b45309', len: 56, dmg: 52, kb: 18, type: 'melee', special: 'reflect', desc: 'Mərmiləri geri əks etdirir' },
-            { id: 'yoyo', name: 'Alovlu Yo-Yo', cat: 'Əyləncəli', color: '#22d3ee', accent: '#f43f5e', len: 80, dmg: 52, kb: 15, type: 'melee', special: 'throw_return', desc: 'Uzağa uzanıb geri qayıdır' },
-            { id: 'whip', name: 'İldırım Qamçısı', cat: 'Xüsusi', color: '#a855f7', accent: '#fde047', len: 92, dmg: 54, kb: 16, type: 'melee', special: 'pull', desc: 'Uzaqdan şaqqıltı ilə vurur' },
-            { id: 'time_clock', name: 'Zaman Saatı ⏳', cat: 'Əfsanəvi', color: '#fbbf24', accent: '#38bdf8', len: 62, dmg: 54, kb: 15, type: 'ranged', proj: 'laser', special: 'freeze', desc: 'Zamanı dondurub rəqibi saxlayır!' }
+            { id: 'katana', name: 'Katana', cat: 'Qılınc', type: 'melee', dmg: 52, kb: 9, len: 64, color: '#e2e8f0', accent: '#38bdf8', special: 'dash', desc: 'Sürətli kəsim və ani atılma zərbəsi.' },
+            { id: 'mjolnir', name: 'Mjolnir Çəkici', cat: 'Çəkic', type: 'melee', dmg: 76, kb: 16, len: 58, color: '#94a3b8', accent: '#facc15', special: 'lightning', desc: 'Rəqibə göydən ildırım endirir.' },
+            { id: 'guitar', name: 'Rocker Gitara', cat: 'Xüsusi', type: 'ranged', dmg: 46, kb: 11, len: 58, color: '#ef4444', accent: '#facc15', proj: 'note', special: 'music_wave', desc: 'Səs dalğaları və 360° musiqi partlayışı.' },
+            { id: 'portal_gun', name: 'Portal Silahı', cat: 'Sci-Fi', type: 'ranged', dmg: 44, kb: 8, len: 54, color: '#38bdf8', accent: '#fb923c', proj: 'portal', special: 'teleport_behind', desc: 'Düşmənin arxasına ani teleportasiya.' },
+            { id: 'lightsaber_red', name: 'İşıq Qılıncı (Sith)', cat: 'Enerji', type: 'melee', dmg: 64, kb: 10, len: 68, color: '#ef4444', accent: '#fca5a5', special: 'dash', desc: 'Qızmar plazma zərbəsi və sürətli hücum.' },
+            { id: 'lightsaber_blue', name: 'İşıq Qılıncı (Jedi)', cat: 'Enerji', type: 'melee', dmg: 60, kb: 10, len: 68, color: '#22d3ee', accent: '#bae6fd', special: 'reflect', desc: 'Enerji qalxanı və çevik zərbə.' },
+            { id: 'scythe', name: 'Əcəl Orağı', cat: 'Qılınc', type: 'melee', dmg: 72, kb: 13, len: 74, color: '#cbd5e1', accent: '#a855f7', special: 'spin', desc: 'Geniş dairəvi ölümcül fırlanma.' },
+            { id: 'war_hammer', name: 'Döyüş Çəkici', cat: 'Çəkic', type: 'melee', dmg: 82, kb: 18, len: 62, color: '#64748b', accent: '#f97316', special: 'slam', desc: 'Yeri silkələyən ağır zərbə dalğası.' },
+            { id: 'sledgehammer', name: 'Balyoz', cat: 'Çəkic', type: 'melee', dmg: 85, kb: 19, len: 60, color: '#475569', accent: '#ef4444', special: 'homerun', desc: 'Rəqibi arenanın o başına uçurur.' },
+            { id: 'frying_pan', name: 'Tava', cat: 'Komik', type: 'melee', dmg: 58, kb: 15, len: 48, color: '#334155', accent: '#facc15', special: 'homerun', desc: 'Klassik "bonk" səsli qəfil zərbə.' },
+            { id: 'umbrella', name: 'Sehrli Çətir', cat: 'Komik', type: 'melee', dmg: 45, kb: 11, len: 62, color: '#ec4899', accent: '#fef08a', special: 'float_shield', desc: 'Havada yavaş eniş və qoruyucu qalxan.' },
+            { id: 'shield', name: 'Titan Qalxanı', cat: 'Müdafiə', type: 'melee', dmg: 50, kb: 17, len: 42, color: '#3b82f6', accent: '#facc15', special: 'force_push', desc: 'Güclü itələmə dalğası və müdafiə.' },
+            { id: 'boomerang', name: 'Bumeranq', cat: 'Atıcı', type: 'ranged', dmg: 48, kb: 10, len: 46, color: '#f59e0b', accent: '#fef08a', proj: 'boomerang', special: 'throw_return', desc: 'Atılır və geri qayıdaraq ikiqat vurur.' },
+            { id: 'shuriken', name: 'Ninja Şurikeni', cat: 'Ninja', type: 'ranged', dmg: 38, kb: 7, len: 40, color: '#cbd5e1', accent: '#ef4444', proj: 'shuriken', special: 'multishot', desc: 'Üçlü ulduz atışı və çeviklik.' },
+            { id: 'laser_rifle', name: 'Lazer Tüfəngi', cat: 'Sci-Fi', type: 'ranged', dmg: 44, kb: 8, len: 60, color: '#22d3ee', accent: '#a5f3fc', proj: 'laser', special: 'rapid', desc: 'Ardıcıl yüksək sürətli lazer atəşi.' },
+            { id: 'sniper', name: 'Snayper', cat: 'Atıcı', type: 'ranged', dmg: 96, kb: 15, len: 74, color: '#1e293b', accent: '#ef4444', proj: 'sniper', special: 'dash', desc: 'Uzaq məsafədən dağıdıcı güllə.' },
+            { id: 'flame_staff', name: 'Alov Əsası', cat: 'Sehr', type: 'ranged', dmg: 56, kb: 11, len: 66, color: '#f97316', accent: '#fef08a', proj: 'fireball', special: 'shockwave', desc: 'Od kürələri və alov partlayışı.' },
+            { id: 'ice_wand', name: 'Buz Əsası', cat: 'Sehr', type: 'ranged', dmg: 45, kb: 8, len: 64, color: '#38bdf8', accent: '#e0f2fe', proj: 'ice', special: 'freeze', desc: 'Rəqibi müvəqqəti dondurur.' },
+            { id: 'gravity_orb', name: 'Qravitasiya Kürəsi', cat: 'Sehr', type: 'ranged', dmg: 52, kb: 12, len: 50, color: '#8b5cf6', accent: '#e9d5ff', proj: 'laser', special: 'pull', desc: 'Rəqibləri özünə çəkir.' },
+            { id: 'rocket_launcher', name: 'Raketaatan', cat: 'Ağır', type: 'ranged', dmg: 88, kb: 18, len: 68, color: '#15803d', accent: '#f97316', proj: 'rocket', special: 'shockwave', desc: 'Partlayıcı raketlərlə ağır zərbə.' },
+            { id: 'minigun', name: 'Minigun', cat: 'Ağır', type: 'ranged', dmg: 26, kb: 6, len: 66, color: '#475569', accent: '#facc15', proj: 'laser', special: 'rapid', desc: 'Dayanmadan güllə yağışı.' },
+            { id: 'greatsword', name: 'Nəhəng Qılınc', cat: 'Qılınc', type: 'melee', dmg: 84, kb: 16, len: 78, color: '#94a3b8', accent: '#f8fafc', special: 'slam', desc: 'Uzun və çox güclü kəskin zərbə.' },
+            { id: 'claymore', name: 'Kleymer', cat: 'Qılınc', type: 'melee', dmg: 78, kb: 15, len: 75, color: '#cbd5e1', accent: '#38bdf8', special: 'dash', desc: 'Cəngavər qılıncı ilə kəskin hücum.' },
+            { id: 'rapier', name: 'Rapira', cat: 'Qılınc', type: 'melee', dmg: 50, kb: 7, len: 66, color: '#e2e8f0', accent: '#f472b6', special: 'dash', desc: 'İldırım sürətində dəqiq zərbələr.' },
+            { id: 'dual_daggers', name: 'Xəncər Cütü', cat: 'Ninja', type: 'melee', dmg: 46, kb: 8, len: 44, color: '#94a3b8', accent: '#4ade80', special: 'teleport_behind', desc: 'Gizli hücum və sürətli zərbə.' },
+            { id: 'kunai', name: 'Kunai', cat: 'Ninja', type: 'ranged', dmg: 40, kb: 7, len: 42, color: '#64748b', accent: '#ef4444', proj: 'shuriken', special: 'multishot', desc: 'İti ninja bıçaqları.' },
+            { id: 'bow', name: 'Şimşək Yayı', cat: 'Atıcı', type: 'ranged', dmg: 58, kb: 10, len: 54, color: '#b45309', accent: '#facc15', proj: 'laser', special: 'multishot', desc: 'Dəqiq oxlar və üçlü yay atışı.' },
+            { id: 'crossbow', name: 'Arbalet', cat: 'Atıcı', type: 'ranged', dmg: 70, kb: 13, len: 56, color: '#78350f', accent: '#ef4444', proj: 'sniper', special: 'rapid', desc: 'Güclü zərbəli mexaniki yay.' },
+            { id: 'plasma_sword', name: 'Plazma Qılıncı', cat: 'Enerji', type: 'melee', dmg: 68, kb: 12, len: 68, color: '#a855f7', accent: '#f0abfc', special: 'spin', desc: 'Bənövşəyi enerji qılıncı.' },
+            { id: 'neon_whip', name: 'Neon Qamçı', cat: 'Enerji', type: 'melee', dmg: 54, kb: 11, len: 82, color: '#ec4899', accent: '#22d3ee', special: 'pull', desc: 'Uzun məsafəli elastik qamçı.' },
+            { id: 'chain_hook', name: 'Zəncirli Qarmaq', cat: 'Xüsusi', type: 'melee', dmg: 55, kb: 12, len: 76, color: '#71717a', accent: '#facc15', special: 'pull', desc: 'Rəqibi yaxına çəkir və vurur.' },
+            { id: 'anchor', name: 'Gəmi Lövbəri', cat: 'Ağır', type: 'melee', dmg: 86, kb: 18, len: 64, color: '#334155', accent: '#38bdf8', special: 'slam', desc: 'Dəniz nəhənginin ağır lövbəri.' },
+            { id: 'shovel', name: 'Qəbiristanlıq Küreyi', cat: 'Komik', type: 'melee', dmg: 60, kb: 14, len: 62, color: '#78350f', accent: '#94a3b8', special: 'homerun', desc: 'Torpaq qazan kimi rəqibi uçurur.' },
+            { id: 'bat', name: 'Beysbol Dəyənəyi', cat: 'Komik', type: 'melee', dmg: 62, kb: 16, len: 58, color: '#d97706', accent: '#fef08a', special: 'homerun', desc: 'Home-run zərbəsi ilə böyük itələmə.' },
+            { id: 'golf_club', name: 'Qolf Çubuğu', cat: 'Komik', type: 'melee', dmg: 54, kb: 15, len: 64, color: '#cbd5e1', accent: '#4ade80', special: 'homerun', desc: 'Yüksək trayektoriyalı zərbə.' },
+            { id: 'candy_cane', name: 'Şəkər Çubuğu', cat: 'Komik', type: 'melee', dmg: 48, kb: 11, len: 58, color: '#ef4444', accent: '#ffffff', special: 'float_shield', desc: 'Bayram şirniyyatı — şirin amma sərt!' },
+            { id: 'broom', name: 'Cadugər Süpürgəsi', cat: 'Sehr', type: 'melee', dmg: 46, kb: 10, len: 68, color: '#92400e', accent: '#c084fc', special: 'float_shield', desc: 'Havada süzülmə və sehrli zərbə.' },
+            { id: 'trident', name: 'Poseidon Üçdişi', cat: 'Sehr', type: 'melee', dmg: 74, kb: 14, len: 76, color: '#0ea5e9', accent: '#facc15', special: 'lightning', desc: 'Dəniz və şimşək gücü.' },
+            { id: 'spear', name: 'Döyüş Nizəsi', cat: 'Qılınc', type: 'melee', dmg: 64, kb: 12, len: 78, color: '#94a3b8', accent: '#ef4444', special: 'dash', desc: 'Uzaq məsafədən iti nizə zərbəsi.' },
+            { id: 'halberd', name: 'Halebarda', cat: 'Qılınc', type: 'melee', dmg: 76, kb: 15, len: 78, color: '#64748b', accent: '#f59e0b', special: 'spin', desc: 'Balta və nizənin birləşməsi.' },
+            { id: 'battle_axe', name: 'Döyüş Baltası', cat: 'Qılınc', type: 'melee', dmg: 80, kb: 16, len: 64, color: '#94a3b8', accent: '#dc2626', special: 'slam', desc: 'İki ağızlı ağır döyüş baltası.' },
+            { id: 'tomahawk', name: 'Tomaqavk', cat: 'Atıcı', type: 'ranged', dmg: 54, kb: 11, len: 46, color: '#78350f', accent: '#ef4444', proj: 'boomerang', special: 'throw_return', desc: 'Atılan və geri dönən balta.' },
+            { id: 'dagger_storm', name: 'Xəncər Tufanı', cat: 'Ninja', type: 'ranged', dmg: 42, kb: 8, len: 44, color: '#e2e8f0', accent: '#38bdf8', proj: 'shuriken', special: 'shard_burst', desc: 'Çoxsaylı iti xəncər atışı.' },
+            { id: 'void_blade', name: 'Boşluq Qılıncı', cat: 'Sehr', type: 'melee', dmg: 75, kb: 13, len: 70, color: '#312e81', accent: '#c084fc', special: 'blackhole', desc: 'Qaranlıq enerji ilə rəqibləri çəkir.' },
+            { id: 'solar_blade', name: 'Günəş Qılıncı', cat: 'Enerji', type: 'melee', dmg: 77, kb: 14, len: 70, color: '#facc15', accent: '#f97316', special: 'shockwave', desc: 'Günəş şüası kimi parlayan zərbə.' },
+            { id: 'frost_axe', name: 'Şaxta Baltası', cat: 'Sehr', type: 'melee', dmg: 68, kb: 12, len: 66, color: '#38bdf8', accent: '#e0f2fe', special: 'freeze', desc: 'Dondurucu soyuq zərbə.' },
+            { id: 'thunder_rod', name: 'İldırım Çubuğu', cat: 'Enerji', type: 'ranged', dmg: 62, kb: 12, len: 64, color: '#facc15', accent: '#38bdf8', proj: 'laser', special: 'lightning', desc: 'Yüksək gərginlikli elektrik zərbəsi.' },
+            { id: 'plasma_cannon', name: 'Plazma Topu', cat: 'Sci-Fi', type: 'ranged', dmg: 84, kb: 16, len: 66, color: '#a855f7', accent: '#22d3ee', proj: 'rocket', special: 'shockwave', desc: 'Nəhəng plazma partlayışı.' },
+            { id: 'railgun', name: 'Reylqan', cat: 'Sci-Fi', type: 'ranged', dmg: 92, kb: 15, len: 76, color: '#06b6d4', accent: '#fef08a', proj: 'sniper', special: 'rapid', desc: 'Maqnit sürətli hiper-atış.' },
+            { id: 'bubble_wand', name: 'Köpük Çubuğu', cat: 'Komik', type: 'ranged', dmg: 36, kb: 14, len: 52, color: '#f472b6', accent: '#a5f3fc', proj: 'note', special: 'float_shield', desc: 'Sürpriz itələmə gücünə malik köpüklər.' },
+            { id: 'megaphone', name: 'Meqafon', cat: 'Komik', type: 'ranged', dmg: 48, kb: 16, len: 52, color: '#facc15', accent: '#ef4444', proj: 'note', special: 'force_push', desc: 'Güclü səs zərbəsi ilə uzaqlaşdırır.' },
+            { id: 'wrench', name: 'İngilis Açarı', cat: 'Müdafiə', type: 'melee', dmg: 56, kb: 13, len: 54, color: '#94a3b8', accent: '#f97316', special: 'homerun', desc: 'Mexanik dəmir zərbə.' },
+            { id: 'crowbar', name: 'Lom', cat: 'Müdafiə', type: 'melee', dmg: 62, kb: 14, len: 60, color: '#dc2626', accent: '#f8fafc', special: 'dash', desc: 'Sərt dəmir lom zərbəsi.' },
+            { id: 'katana_gold', name: 'Qızıl Katana', cat: 'Qılınc', type: 'melee', dmg: 79, kb: 13, len: 68, color: '#facc15', accent: '#fef08a', special: 'dash', desc: 'Çempionlara layiq qızıl qılınc.' },
+            { id: 'dragon_glaive', name: 'Əjdaha Qləyfi', cat: 'Sehr', type: 'melee', dmg: 83, kb: 15, len: 78, color: '#ef4444', accent: '#facc15', special: 'shockwave', desc: 'Əjdaha alovu və uzun nizə zərbəsi.' },
+            { id: 'crystal_staff', name: 'Kristal Əsa', cat: 'Sehr', type: 'ranged', dmg: 60, kb: 10, len: 66, color: '#ec4899', accent: '#38bdf8', proj: 'ice', special: 'shard_burst', desc: 'Kristal qəlpələri saçır.' },
+            { id: 'omega_blade', name: 'Omega Qılıncı', cat: 'Enerji', type: 'melee', dmg: 90, kb: 17, len: 76, color: '#22d3ee', accent: '#facc15', special: 'lightning', desc: 'Maksimum gücə malik əfsanəvi qılınc.' },
+            { id: 'supreme_hammer', name: 'Supreme Çəkic', cat: 'Çəkic', type: 'melee', dmg: 94, kb: 20, len: 68, color: '#f59e0b', accent: '#ef4444', special: 'shockwave', desc: 'Arenanın ən ağır və dağıdıcı çəkici!' }
         ];
 
         // ============================================================================
-        // 3. 12 COLORS, 15 SKINS & 4 MULTI-LEVEL ARENAS (NO INSTANT FALL DEATH!)
+        // 3. 10 COLORS, 13 SKINS & 4 MULTI-LEVEL ARENAS (NO INSTANT FALL DEATH!)
         // ============================================================================
         const COLORS = [
             { id: 'cyan', hex: '#22d3ee', name: 'Firuzəyi' },
@@ -555,27 +553,23 @@
             { id: 'pink', hex: '#f472b6', name: 'Çəhrayı' },
             { id: 'white', hex: '#f8fafc', name: 'Ağ' },
             { id: 'blue', hex: '#3b82f6', name: 'Göy' },
-            { id: 'lime', hex: '#a3e635', name: 'Laym' },
-            { id: 'teal', hex: '#14b8a6', name: 'Zümrüd' },
-            { id: 'rose', hex: '#fb7185', name: 'Al-Qırmızı' }
+            { id: 'lime', hex: '#a3e635', name: 'Laym' }
         ];
 
         const SKINS = [
             { id: 'classic', name: 'Klassik' },
             { id: 'ninja', name: 'Ninja' },
             { id: 'pharaoh', name: 'Firon Anubis' },
+            { id: 'cyber', name: 'Kiber' },
             { id: 'samurai', name: 'Samuray' },
             { id: 'knight', name: 'Cəngavər' },
-            { id: 'cyber', name: 'Kiber Robot' },
             { id: 'demon', name: 'İblis' },
-            { id: 'crown', name: 'Kral Tacı' },
-            { id: 'pirate', name: 'Pirat' },
+            { id: 'street', name: 'Küçə Stili' },
+            { id: 'robot', name: 'Robot' },
+            { id: 'shadow', name: 'Kölgə' },
             { id: 'viking', name: 'Vikinq' },
-            { id: 'wizard', name: 'Sehrbaz' },
-            { id: 'panda', name: 'Panda' },
-            { id: 'astronaut', name: 'Astronavt' },
-            { id: 'hacker', name: 'Haker' },
-            { id: 'reaper', name: 'Ruh Ovçusu' }
+            { id: 'mage', name: 'Sehrbaz' },
+            { id: 'crown', name: 'Kral Tacı' }
         ];
 
         // Arenas have a solid bottom floor / bounce surface so falling off a truck NEVER kills you instantly!
@@ -638,19 +632,65 @@
         ];
 
         // ============================================================================
-        // 4. REAL-TIME FIREBASE MULTIPLAYER ROOMS + BROADCASTCHANNEL SYNC
+        // 4. BULLETPROOF REAL-TIME RELAY + BROADCASTCHANNEL + FIREBASE SYNC
         // ============================================================================
         let db = null;
         let auth = null;
         let firebaseReady = false;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'supreme-duelist-stickman-v2';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'supreme-duelist-stickman-v3';
 
-        // Unique session ID per browser tab so even 2 tabs on same PC can join each other!
+        // Unique persistent session ID per browser tab
         const currentUserId = 'usr_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36).slice(-4);
 
-        // BroadcastChannel as instant ultra-fast bridge for same-browser tabs alongside Firestore
-        const localBus = ('BroadcastChannel' in window) ? new BroadcastChannel('supreme_stickman_rooms') : null;
+        const localBus = ('BroadcastChannel' in window) ? new BroadcastChannel('supreme_stickman_rooms_v3') : null;
         const localRoomCache = {};
+        let heartbeatTimer = null;
+        let relayPollTimer = null;
+
+        // Public key-value relay fallback so separate devices/browsers can discover 5-digit rooms reliably
+        const RELAY_PREFIX = 'sds_room_v3_';
+        async function relayWrite(key, obj) {
+            try {
+                localStorage.setItem(RELAY_PREFIX + key, JSON.stringify({ v: obj, t: Date.now() }));
+            } catch (_) {}
+            try {
+                await fetch(`https://kvdb.io/api/v1/buckets/sds_stickman_az/keys/${encodeURIComponent(key)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ v: obj, t: Date.now() })
+                });
+            } catch (_) {}
+        }
+
+        async function relayRead(key) {
+            // Check localStorage first
+            try {
+                const raw = localStorage.getItem(RELAY_PREFIX + key);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.v && Date.now() - parsed.t < 1000 * 60 * 30) {
+                        return parsed.v;
+                    }
+                }
+            } catch (_) {}
+
+            // Check kvdb public relay
+            try {
+                const res = await fetch(`https://kvdb.io/api/v1/buckets/sds_stickman_az/keys/${encodeURIComponent(key)}`, {
+                    cache: 'no-store'
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.v) {
+                        try {
+                            localStorage.setItem(RELAY_PREFIX + key, JSON.stringify({ v: data.v, t: Date.now() }));
+                        } catch (_) {}
+                        return data.v;
+                    }
+                }
+            } catch (_) {}
+            return null;
+        }
 
         async function initFirebase() {
             const pill = document.getElementById('serverStatusPill');
@@ -667,16 +707,16 @@
                     }
                     firebaseReady = true;
                     pill.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
-                    pill.textContent = '● Onlayn Serverə Qoşuldu (Hazır)';
+                    pill.textContent = '● ONLAYN SERVER AKTİV (Firebase + Relé)';
                 } else {
-                    pill.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
-                    pill.textContent = '● Lokal Şəbəkə Rejimi Aktivdir';
+                    pill.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                    pill.textContent = '● ONLAYN SERVER AKTİV (Relé + Broadcast)';
                 }
             } catch (e) {
-                console.warn("Firebase fallback:", e);
+                console.warn("Firebase fallback active:", e);
                 firebaseReady = false;
                 pill.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
-                pill.textContent = '● Şəbəkə Rejimi Aktivdir';
+                pill.textContent = '● YEREL / RELÉ REJİM AKTİV';
             }
         }
         initFirebase();
@@ -686,7 +726,7 @@
             adminId: null,
             status: 'menu', // 'lobby' | 'playing' | 'victory'
             mapId: 'trucks',
-            players: [], // { id, name, color, skin, isBot, weaponId }
+            players: [], // { id, name, color, skin, isBot, isLocalSplit, weaponId }
             winnerId: null
         };
         let roomUnsubscribe = null;
@@ -739,17 +779,28 @@
             if (localBus) {
                 localBus.postMessage({ type: 'ROOM_UPDATE', room: payload });
             }
+            relayWrite('room_' + payload.code, payload);
             if (firebaseReady && db) {
                 try {
                     await setDoc(getRoomDocRef(payload.code), payload);
                 } catch (err) {
-                    console.error("Firestore write error:", err);
+                    console.warn("Firestore write fallback:", err);
                 }
             }
         }
 
+        function startRoomHeartbeat() {
+            clearInterval(heartbeatTimer);
+            heartbeatTimer = setInterval(() => {
+                if (roomState.code && roomState.status !== 'menu') {
+                    writeRoomState();
+                }
+            }, 1500);
+        }
+
         function handleIncomingRoomData(data) {
             if (!data || !roomState.code || String(data.code) !== String(roomState.code)) return;
+            if (data.updatedAt && roomState.updatedAt && data.updatedAt < roomState.updatedAt - 500) return;
             const prevStatus = roomState.status;
             roomState = { ...roomState, ...data };
             updateLobbyUI();
@@ -788,6 +839,24 @@
             if (roomUnsubscribe) { roomUnsubscribe(); roomUnsubscribe = null; }
             if (liveSnapUnsub) { liveSnapUnsub(); liveSnapUnsub = null; }
             if (inputSnapUnsub) { inputSnapUnsub(); inputSnapUnsub = null; }
+            clearInterval(relayPollTimer);
+
+            // Poll relay every 1.2s for cross-device / cross-browser room & gameplay sync
+            relayPollTimer = setInterval(async () => {
+                if (!roomState.code || String(roomState.code) !== String(code)) return;
+                const latestRoom = await relayRead('room_' + code);
+                if (latestRoom) handleIncomingRoomData(latestRoom);
+
+                if (isMatchActive) {
+                    if (roomState.adminId === currentUserId) {
+                        const inpData = await relayRead('inputs_' + code);
+                        if (inpData && inpData.inputs) Object.assign(remoteInputs, inpData.inputs);
+                    } else {
+                        const liveSnap = await relayRead('live_' + code);
+                        if (liveSnap && liveSnap.fighters) applyAuthoritativeSnapshot(liveSnap);
+                    }
+                }
+            }, 1200);
 
             if (!firebaseReady || !db) return;
 
@@ -795,9 +864,8 @@
                 if (snap.exists()) {
                     handleIncomingRoomData(snap.data());
                 }
-            }, (err) => console.warn("Room listen err:", err));
+            }, () => {});
 
-            // Listen for live physics snapshots (for non-host clients)
             liveSnapUnsub = onSnapshot(getLiveStateDocRef(code), (snap) => {
                 if (!snap.exists() || roomState.adminId === currentUserId || !isMatchActive) return;
                 const d = snap.data();
@@ -806,7 +874,6 @@
                 }
             }, () => {});
 
-            // Listen for remote client inputs (for host/admin)
             inputSnapUnsub = onSnapshot(getInputsDocRef(code), (snap) => {
                 if (!snap.exists() || roomState.adminId !== currentUserId || !isMatchActive) return;
                 const d = snap.data();
@@ -837,20 +904,54 @@
                     color: myProfile.color,
                     skin: myProfile.skin,
                     isBot: false,
+                    isLocalSplit: false,
                     weaponId: WEAPONS[0].id
                 }],
-                winnerId: null
+                winnerId: null,
+                updatedAt: Date.now()
             };
 
             document.getElementById('inputPlayerName').value = myProfile.name;
             await writeRoomState();
+            startRoomHeartbeat();
             subscribeToRoom(code);
             showScreen('lobby');
             updateLobbyUI();
             showToast(`Otaq yaradıldı! Kod: ${code}`, '👑');
         }
 
-        // JOIN EXISTING ROOM (FIXED!)
+        async function discoverRoomByCode(code) {
+            // 1. Instant local cache / BroadcastChannel
+            if (localRoomCache[code]) return localRoomCache[code];
+            if (localBus) {
+                localBus.postMessage({ type: 'QUERY_ROOM', code });
+                await new Promise(r => setTimeout(r, 180));
+                if (localRoomCache[code]) return localRoomCache[code];
+            }
+
+            // 2. Shared relay fallback (same device or cross-device relay)
+            const relayed = await relayRead('room_' + code);
+            if (relayed && relayed.code) {
+                localRoomCache[code] = relayed;
+                return relayed;
+            }
+
+            // 3. Firestore cloud lookup
+            if (firebaseReady && db) {
+                try {
+                    const snap = await getDoc(getRoomDocRef(code));
+                    if (snap.exists()) {
+                        const d = snap.data();
+                        localRoomCache[code] = d;
+                        return d;
+                    }
+                } catch (_) {}
+            }
+
+            return null;
+        }
+
+        // JOIN EXISTING ROOM (RETRY UP TO 2.5s SO FRESH ROOMS ARE NEVER FALSELY MISSED)
         async function joinExistingRoom() {
             sfx.init();
             const rawInput = document.getElementById('inputRoomCode').value.trim().replace(/\s+/g, '');
@@ -861,34 +962,21 @@
 
             const btnJoin = document.getElementById('btnJoinRoom');
             btnJoin.disabled = true;
-            btnJoin.textContent = 'QOŞULUR...';
+            btnJoin.textContent = 'AXTARILIR...';
 
             try {
                 let foundRoom = null;
+                const deadline = Date.now() + 2500;
 
-                // 1. Check Firestore Cloud Database first
-                if (firebaseReady && db) {
-                    const snap = await getDoc(getRoomDocRef(rawInput));
-                    if (snap.exists()) {
-                        foundRoom = snap.data();
-                    }
-                }
-
-                // 2. Also check BroadcastChannel / Local Cache if same browser
-                if (!foundRoom) {
-                    if (localRoomCache[rawInput]) {
-                        foundRoom = localRoomCache[rawInput];
-                    } else if (localBus) {
-                        localBus.postMessage({ type: 'QUERY_ROOM', code: rawInput });
-                        await new Promise(r => setTimeout(r, 220));
-                        if (localRoomCache[rawInput]) {
-                            foundRoom = localRoomCache[rawInput];
-                        }
+                while (!foundRoom && Date.now() < deadline) {
+                    foundRoom = await discoverRoomByCode(rawInput);
+                    if (!foundRoom) {
+                        await new Promise(r => setTimeout(r, 350));
                     }
                 }
 
                 if (!foundRoom) {
-                    showToast(`"${rawInput}" nömrəli otaq tapılmadı! Kodu yoxlayın.`, '❌');
+                    showToast(`"${rawInput}" otağı tapılmadı! 5 rəqəmli kodu yoxlayın.`, '❌');
                     return;
                 }
 
@@ -905,7 +993,6 @@
                     return;
                 }
 
-                // Assign unique unused color & default name
                 const usedColors = existingPlayers.map(p => p.color);
                 const availColor = COLORS.find(c => !usedColors.includes(c.hex)) || COLORS[existingPlayers.length % COLORS.length];
                 myProfile.name = 'Oyunçu_' + (existingPlayers.length + 1);
@@ -919,6 +1006,7 @@
                         color: myProfile.color,
                         skin: myProfile.skin,
                         isBot: false,
+                        isLocalSplit: false,
                         weaponId: WEAPONS[0].id
                     });
                 }
@@ -926,16 +1014,18 @@
                 roomState = {
                     ...foundRoom,
                     code: String(rawInput),
-                    players: existingPlayers
+                    players: existingPlayers,
+                    updatedAt: Date.now()
                 };
 
                 document.getElementById('inputPlayerName').value = myProfile.name;
                 await writeRoomState();
+                startRoomHeartbeat();
                 subscribeToRoom(rawInput);
                 showScreen('lobby');
                 updateLobbyUI();
                 sfx.playHit(false);
-                showToast(`${rawInput} nömrəli otağa uğurla qoşuldunuz!`, '✅');
+                showToast(`${rawInput} nömrəli otağa qoşuldunuz!`, '✅');
             } catch (err) {
                 console.error("Join room failed:", err);
                 showToast('Qoşulma zamanı xəta baş verdi. Yenidən yoxlayın.', '⚠️');
@@ -982,11 +1072,38 @@
                 color: availColor.hex,
                 skin: randSkin,
                 isBot: true,
+                isLocalSplit: false,
                 weaponId: WEAPONS[0].id
             });
             sfx.playHit(false);
             updateLobbyUI();
             await writeRoomState();
+        }
+
+        async function addLocalSplitPlayerToRoom() {
+            if (roomState.adminId !== currentUserId) return;
+            if (roomState.players.length >= 5) {
+                showToast('Otaq maksimum 5 nəfər ola bilər!', '🚫');
+                return;
+            }
+            const slotNum = roomState.players.length + 1;
+            const usedColors = roomState.players.map(p => p.color);
+            const availColor = COLORS.find(c => !usedColors.includes(c.hex)) || COLORS[slotNum % COLORS.length];
+            const randSkin = SKINS[slotNum % SKINS.length].id;
+
+            roomState.players.push({
+                id: 'local_p' + slotNum + '_' + Math.random().toString(36).substring(2, 5),
+                name: 'Dost_P' + slotNum,
+                color: availColor.hex,
+                skin: randSkin,
+                isBot: false,
+                isLocalSplit: true,
+                weaponId: WEAPONS[0].id
+            });
+            sfx.playHit(false);
+            updateLobbyUI();
+            await writeRoomState();
+            showToast(`Eyni cihazda ${slotNum}-ci oyunçu əlavə olundu (Ox düymələri / AI)!`, '🎮');
         }
 
         async function removePlayerFromRoom(targetId) {
@@ -1382,15 +1499,18 @@
             const isAdmin = roomState.adminId === currentUserId;
 
             const btnAddBot = document.getElementById('btnAddBot');
+            const btnAddLocal = document.getElementById('btnAddLocalPlayer');
             const btnStart = document.getElementById('btnStartGame');
             const waitMsg = document.getElementById('waitingAdminMsg');
 
             if (isAdmin) {
                 btnAddBot.classList.remove('hidden');
+                btnAddLocal.classList.remove('hidden');
                 btnStart.classList.remove('hidden');
                 waitMsg.classList.add('hidden');
             } else {
                 btnAddBot.classList.add('hidden');
+                btnAddLocal.classList.add('hidden');
                 btnStart.classList.add('hidden');
                 waitMsg.classList.remove('hidden');
             }
@@ -1409,6 +1529,7 @@
                                 <span>${p.name}</span>
                                 ${p.id === roomState.adminId ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">ADMIN</span>' : ''}
                                 ${p.isBot ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">BOT</span>' : ''}
+                                ${p.isLocalSplit ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">EYNİ CİHAZ</span>' : ''}
                                 ${p.id === currentUserId ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">SƏN</span>' : ''}
                             </div>
                             <div class="text-[11px] text-slate-400">Skin: ${skinObj ? skinObj.name : 'Klassik'}</div>
@@ -1617,6 +1738,7 @@
             if (localBus) {
                 localBus.postMessage({ type: 'CLIENT_INPUT', userId: currentUserId, input: inp });
             }
+            relayWrite('inputs_' + roomState.code, { inputs: { [currentUserId]: { ...inp, ts: now } } });
             if (firebaseReady && db) {
                 try {
                     await setDoc(getInputsDocRef(roomState.code), {
@@ -1729,10 +1851,9 @@
                     isAttacking: false
                 };
             });
-
-            // Host runs periodic 12Hz Firestore + instant BroadcastChannel state broadcast
+            // Host runs periodic relay + Firestore + BroadcastChannel state broadcast
             clearInterval(stateSyncTimer);
-            if (isHost && roomState.players.some(p => !p.isBot && p.id !== currentUserId)) {
+            if (isHost && roomState.players.some(p => !p.isBot && !p.isLocalSplit && p.id !== currentUserId)) {
                 stateSyncTimer = setInterval(async () => {
                     if (!isMatchActive || !roomState.code) return;
                     const snap = {
@@ -1750,10 +1871,11 @@
                         ts: Date.now()
                     };
                     if (localBus) localBus.postMessage({ type: 'LIVE_SNAPSHOT', snapshot: snap });
+                    relayWrite('live_' + roomState.code, snap);
                     if (firebaseReady && db) {
                         try { await setDoc(getLiveStateDocRef(roomState.code), snap); } catch (_) {}
                     }
-                }, 90);
+                }, 120);
             }
 
             const me = fighters.find(f => f.id === currentUserId);
@@ -2472,6 +2594,7 @@
         document.getElementById('btnJoinRoom').onclick = joinExistingRoom;
         document.getElementById('btnSaveProfile').onclick = savePlayerCustomization;
         document.getElementById('btnAddBot').onclick = addBotToRoom;
+        document.getElementById('btnAddLocalPlayer').onclick = addLocalSplitPlayerToRoom;
         document.getElementById('btnStartGame').onclick = adminStartGame;
 
         document.getElementById('btnLeaveRoom').onclick = () => {
@@ -2479,6 +2602,8 @@
             if (liveSnapUnsub) liveSnapUnsub();
             if (inputSnapUnsub) inputSnapUnsub();
             clearInterval(stateSyncTimer);
+            clearInterval(heartbeatTimer);
+            clearInterval(relayPollTimer);
             roomState.code = null;
             setupBackgroundDemoFight();
             showScreen('menu');
